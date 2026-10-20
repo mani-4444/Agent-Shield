@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import datetime as dt
 import re
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
@@ -163,7 +163,61 @@ class RunRecord(Model):
         return self
 
 
+class ToolSpec(Model):
+    """A tool offered to the LLM (configs a-c only): name, description, JSON-schema parameters."""
+
+    name: ToolName
+    description: str
+    parameters: dict[str, Any]
+
+
+class Message(Model):
+    role: Literal["system", "user", "assistant", "tool"]
+    content: str
+    tool_calls: list[ToolCall] = Field(default_factory=list)  # assistant turns that called tools
+    tool_call_id: str | None = None  # tool-result turns
+
+
+class LLMRequest(Model):
+    """Everything sent to the provider. Its JSON form is the cache key input (agent/llm.py)."""
+
+    provider: str
+    model_id: str
+    messages: list[Message]
+    tools: list[ToolSpec] = Field(default_factory=list)
+    response_schema: dict[str, Any] | None = None  # JSON schema for structured output (config d)
+    temperature: float
+    max_tokens: int | None
+    trial: int  # part of the cache key so the 3 trials are distinct, replayable calls
+
+
 class LLMResponse(Model):
     text: str
     tool_calls: list[ToolCall] = Field(default_factory=list)
     tokens: dict[str, int] = Field(default_factory=dict)
+    latency_ms: float = 0.0  # provider latency; on a cache hit, the latency recorded originally
+    cache_hit: bool = False
+
+
+class ModelSpec(Model):
+    provider: str
+    model_id: str
+
+
+class ClassifierSpec(Model):
+    model_id: str | None
+    threshold: float | None
+
+
+class ModelsConfig(Model):
+    """config/models.yaml. Values still marked TODO load as None."""
+
+    primary: ModelSpec
+    secondary: ModelSpec
+    payload_drafter: ModelSpec
+    classifier: ClassifierSpec
+    temperature: float
+    max_tokens: int | None
+    trials: int
+    data_seed: int
+    bootstrap_seed: int

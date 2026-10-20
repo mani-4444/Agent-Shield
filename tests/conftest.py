@@ -15,7 +15,6 @@ import pytest
 
 # "file" or "file::test" (without parametrize ids) -> task that turns it green (PLAN.md).
 PENDING_ACCEPTANCE = {
-    "test_ac06_tools.py::test_tool_recorder_logs_every_call": "T08",
     "test_ac06_tools.py::test_config_a_llm_tool_calls_land_in_record": "T09",
     "test_ac06_tools.py::test_config_d_engine_tool_calls_land_in_record": "T11",
     "test_ac07_boundary.py": "T11",
@@ -31,6 +30,12 @@ PENDING_ACCEPTANCE = {
     "test_ac13_report.py": "T17",
     "test_ac14_dashboard.py": "T19",
     "test_ac15_labelcheck.py": "T18",
+}
+
+# Pending tests that would pass vacuously before their task lands, so they are not run at all.
+# test_replay_cache_miss expects a non-zero exit; a missing `eval` command (exit 2) satisfies it.
+NOT_RUN_UNTIL_IMPLEMENTED = {
+    "test_ac11_replay.py::test_replay_cache_miss_fails_without_calling_out",
 }
 
 
@@ -49,6 +54,9 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
             item.add_marker(pytest.mark.enable_socket)
         task = _pending_task(item)
         if task:
+            run = f"{item.path.name}::{getattr(item, 'originalname', item.name)}" not in (
+                NOT_RUN_UNTIL_IMPLEMENTED
+            )
             item.add_marker(
-                pytest.mark.xfail(strict=True, reason=f"pending: implemented in {task}")
+                pytest.mark.xfail(strict=True, run=run, reason=f"pending: implemented in {task}")
             )
