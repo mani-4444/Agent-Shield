@@ -1,23 +1,25 @@
 # Single source of truth for model IDs, sampling and seeds (AGENTS.md "Conventions").
 # Changing this file needs human approval. Model IDs are pinned at T08 (DESIGN.md ADR-3).
+# Pinned 2026-10-20 after the T08 live check, approved by the human.
 
 models:
   primary:            # all configs (a)-(e)
-    provider: TODO    # groq | gemini | ollama; pin at T08
-    model_id: TODO-pin-at-T08
+    provider: ollama  # local RTX 3050; Groq free tier too small (200K tokens/day)
+    model_id: qwen3:8b
+    reasoning_effort: none   # turns off qwen3 thinking (live check 2026-10-20)
   secondary:          # configs a and d only, subset if quota is short
-    provider: TODO
-    model_id: TODO-pin-at-T08
+    provider: groq
+    model_id: qwen/qwen3.8-27b
   payload_drafter:    # must be a different model family from primary (SPEC.md Part 4)
-    provider: TODO
-    model_id: TODO-pin-at-T08
+    provider: anthropic   # templates drafted by Claude in-session, not via the adapter
+    model_id: claude-opus-5-5
   classifier:         # Prompt Guard 2 86M, local via transformers (ADR-3)
-    model_id: TODO-pin-at-T10
+    model_id: meta-llama/Llama-Prompt-Guard-2-86M   # local once the HF licence is approved
     threshold: TODO   # tau, calibrated on dev benign (FPR <= 5%) at T10
 
 sampling:
   temperature: 0
-  max_tokens: TODO    # pin at T08
+  max_tokens: 1024    # observed replies use ~50-150 tokens; caps runaway output
   trials: 3
 
 seeds:

@@ -1,7 +1,7 @@
 # Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T19 session
 
 ## Current state
-**Stopping point reached.** All offline work T05–T13 and T17–T19 is committed on `feat/t05-offline-pipeline` (PR open, awaiting the human's merge). Every acceptance criterion is implemented: `uv run pytest -q` 316 passed, 1 skipped (AC-15's real gate waits for hand labels); `uv run pytest tests/acceptance --runxfail` 103 passed, 1 skipped. What remains needs the human: keys, model choice, Prompt Guard licence, Telugu review, then the live pilot (T14).
+PR #5 merged (`main` at `0b488a8`). Branch `feat/t14-live-setup`: T08 live check done, models pinned in `config/models.yaml` (approved): primary Ollama `qwen3:8b` (local), secondary Groq `qwen/qwen3.8-27b`. Telugu reviewed by the human. Prompt Guard licence pending, so (c)/(e) wait; smoke + dev pilot for (a)/(b)/(d) next.
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -21,9 +21,9 @@
 | F3 | Schemas, seeded rng | T03 | done |
 | F4 | Decision engine + policy text | T04 | done |
 | F5 | Benign generator (en/te/te-en) | T05 | done (AC-1..AC-3 green) |
-| F6 | Attack injector (6 families × 3 goals) | T06 | done (AC-4, AC-5 green); human review pending |
+| F6 | Attack injector (6 families × 3 goals) | T06 | done; Telugu reviewed by the human 2026-10-20 |
 | F7 | Detectors | T07 | done (AC-9 green) |
-| F8 | Mock tools + cached LLM adapter | T08 | offline done; live check + model pinning need the human |
+| F8 | Mock tools + cached LLM adapter | T08 | done (live check 2026-10-20, models pinned) |
 | F9 | Configs a–e (+ optional d′) | T09–T11 | (a)–(e) done (AC-6/7/8 green); (d′) not built (open question 5); τ calibration needs the model |
 | F10 | Runner (resume, replay) | T12 | done (AC-10, AC-11 green) |
 | F11 | Metrics with cluster bootstrap | T13 | done (AC-12 green) |
@@ -116,10 +116,13 @@
 - T17 (2026-10-20): palette = reference categorical slots 1–5, validated with the dataviz checker (contrast WARN relieved by direct labels and the table); heatmap on a single-hue blue ramp with values in cells; low n (< 30 docs) marked in tables and cells. summary.csv has no timestamps or paths. Gallery: up to 5 per config, attack successes first.
 - T18 (2026-10-20): the label sheet omits detector verdicts (blind labelling); labels are yes/no, blanks rejected; agreement is on `attack_success`.
 - T19 (2026-10-20): dashboard is replay-only unless the Live toggle is on; errors (replay miss, NotCalibrated, NotPinned) are shown in the UI.
+- T08 live check (2026-10-20, 10 provider calls + local tests): Groq key serves no Llama chat models; `qwen/qwen3.8-27b` passes tool calling and JSON; `openai/gpt-oss-20b` burns 2,048 tokens reasoning on tool calls; Gemini 2.5 Flash retired, 3.5/3.8 Flash returned 503. Groq free limits for qwen3.8-27b: 30 RPM, 1K requests/day, 8K TPM, 200K tokens/day, too small for ~10K calls / ~8M tokens. Human approved: primary Ollama `qwen3:8b` with `reasoning_effort: none`, secondary Groq `qwen/qwen3.8-27b`, payload_drafter recorded as Claude, classifier `meta-llama/Llama-Prompt-Guard-2-86M` (local), max_tokens 1024.
+- Early local observation (6 dev docs, not a result): qwen3:8b in (a)/(b) misjudges budget arithmetic on some benign docs (WAIT -> APPROVE), while (d) gets them right. Expected under the SPEC limitation "fully codifiable policy favours (d)".
 
 ## Known issues / blockers
-- **Human review needed before the T14 freeze (T06):** every Telugu string in `src/injbench/data/telugu.py` and the F4 templates in `src/injbench/data/templates/payloads.json`, plus 20 random docs from `data/v1/test.jsonl`. Regenerate `data/v1` after any template edit.
-- Prompt Guard 2 needs Hugging Face license acceptance + `HF_TOKEN` before T10's live check.
+- Telugu strings and F4 templates reviewed by the human on 2026-10-20 ("okay"). The 20-random-doc review (T06) was not explicitly confirmed; ask at the T14 freeze gate.
+- Prompt Guard 2 86M: HF licence requested 2026-10-20, pending. When approved: set `HF_TOKEN` in `.env`, point `HF_HOME` at D: (C: has ~13 GB free), run `injbench calibrate`, get tau approved. Fallback if it stalls: Groq-hosted `meta-llama/llama-prompt-guard-2-86m` (needs a small adapter change; adds network latency to (c)/(e)).
+- Ollama installed at `D:/Ollama`, models in `D:/ollama-models` (`OLLAMA_MODELS` user env var). qwen3:8b runs 30% CPU / 70% GPU on the 6 GB RTX 3050: ~10 s per (a)/(b) trial, ~6 s per (d).
 - `uv` was installed to `%USERPROFILE%/.local/bin` during T01 (user PATH updated); restart Antigravity (the editor; a VS Code fork) so its processes pick it up. Hooks also fall back to that dir.
 - Hooks are live in-session; the agent cannot write `tests/acceptance/` (deny rule + hook) or edit `.claude/` (auto-mode self-modification guard).
 - `CLAUDE.md` is an `@AGENTS.md` import, not a symlink. To switch: enable Windows Developer Mode, `git config core.symlinks true`, recreate as a symlink.
