@@ -90,6 +90,9 @@ def eval_(
     replay: Annotated[bool, typer.Option(help="Cache only: zero network calls.")] = False,
     data_dir: Annotated[Path, typer.Option(help="Dataset directory.")] = Path("data/v1"),
     results_dir: Annotated[Path, typer.Option(help="Results root.")] = Path("results"),
+    threshold: Annotated[
+        float | None, typer.Option(help="Override the classifier threshold for (c)/(e).")
+    ] = None,
 ) -> None:
     """Run configs x docs x trials (resumable): the same --run-id skips finished trials."""
     import json
@@ -127,12 +130,13 @@ def eval_(
             "run_id": run_id, "configs": configs, "split": split, "trials": trials, "limit": limit,
             "data_dir": str(data_dir), "dataset_sha256": manifest["dataset_sha256"],
             "git_sha": _git_sha(), "models_yaml": DEFAULT_PATH.read_text(encoding="utf-8"),
+            "threshold_override": threshold,
         }  # fmt: skip
         run_config_path.write_text(json.dumps(run_config, indent=2) + "\n", encoding="utf-8")
 
     llm.configure(cache_dir=Path(".cache/llm"), replay=replay)
     settings = default_settings(git_sha=_git_sha())
-    defenses = {c: build_defense(c, settings=settings) for c in configs}
+    defenses = {c: build_defense(c, settings=settings, threshold=threshold) for c in configs}
     try:
         records = run_trials(run_dir, defenses, docs, profiles, trials)
     except llm.ReplayMiss as exc:

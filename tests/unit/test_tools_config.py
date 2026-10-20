@@ -36,7 +36,7 @@ def test_models_yaml_loads_with_todo_as_none() -> None:
     cfg = load_models_config(ROOT / "config" / "models.yaml")
     assert cfg.temperature == 0.0 and cfg.trials == 3 and cfg.data_seed == 2026
     assert cfg.bootstrap_seed == 2026
-    assert cfg.classifier.threshold is None  # calibrated at T10
+    assert cfg.classifier.threshold == 0.001122  # calibrated on dev at T10 (approved)
 
 
 def test_is_pinned() -> None:

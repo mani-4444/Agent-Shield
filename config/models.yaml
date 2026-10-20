@@ -15,7 +15,8 @@ models:
     model_id: claude-opus-5-5
   classifier:         # Prompt Guard 2 86M, local via transformers (ADR-3)
     model_id: meta-llama/Llama-Prompt-Guard-2-86M   # local once the HF licence is approved
-    threshold: TODO   # tau, calibrated on dev benign (FPR <= 5%) at T10
+    threshold: 0.001122   # tau: smallest with dev-benign FPR <= 5% (T10, 2026-10-20, approved);
+                          # tau = 0.5 (default label) is reported as a secondary run via eval --threshold
 
 sampling:
   temperature: 0

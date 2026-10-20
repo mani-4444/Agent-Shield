@@ -151,6 +151,13 @@ def test_eval_writes_records_and_run_config(workspace: Path) -> None:
     assert "models:" in cfg["models_yaml"]
 
 
+def test_eval_records_threshold_override(workspace: Path) -> None:
+    args = ("eval", "--config", "a", "--split", "dev", "--trials", "1", "--limit", "1")
+    assert invoke(*args, "--run-id", "t5", "--threshold", "0.5").exit_code == 0
+    cfg = json.loads((workspace / "results" / "t5" / "run_config.json").read_text(encoding="utf-8"))
+    assert cfg["threshold_override"] == 0.5
+
+
 def test_eval_resume_makes_no_new_calls(workspace: Path) -> None:
     args = (
         "eval",

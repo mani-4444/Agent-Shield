@@ -137,8 +137,15 @@ def test_passing_doc_runs_config_a() -> None:
     assert record.config == "c" and record.key == "c|d-001|0"
 
 
-def test_missing_threshold_is_an_error() -> None:
-    with pytest.raises(NotCalibrated):  # config/models.yaml still says TODO
+def test_missing_threshold_is_an_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = Path(__file__).resolve().parents[2]
+    (tmp_path / "config").mkdir()
+    text = (root / "config" / "models.yaml").read_text(encoding="utf-8")
+    lines = [ln for ln in text.splitlines() if "tau = 0.5" not in ln]
+    text = chr(10).join("    threshold: TODO" if "threshold:" in ln else ln for ln in lines)
+    (tmp_path / "config" / "models.yaml").write_text(text, encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(NotCalibrated):
         build_defense("c", llm=NoLLM(), classifier=lambda t: 0.1, settings=SETTINGS)
 
 
