@@ -1,7 +1,7 @@
-# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01/T02 session
+# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T03 session
 
 ## Current state
-T01 merged (PR #1, `1cecbad`). T02 acceptance suite written and verified, but **staged outside the repo** because `tests/acceptance/` is write-protected (see In progress). Branch `feat/t02-acceptance-suite` (local only).
+T01 merged (PR #1), T02 merged (PR #2, `a5e84e5`). T03 (`schema.py`, `rng.py` + unit tests) done, uncommitted, awaiting branch + commit approval. `uv run pytest -q`: 54 passed, 1 skipped, 88 xfailed. Next: T04.
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -17,8 +17,8 @@ T01 merged (PR #1, `1cecbad`). T02 acceptance suite written and verified, but **
 | ID | Feature | Tasks | Status |
 |---|---|---|---|
 | F1 | Repo setup, hooks, CI | T01 | done |
-| F2 | Acceptance suite + detector fixtures | T02 | in progress (awaiting copy-in) |
-| F3 | Schemas, seeded rng | T03 | todo |
+| F2 | Acceptance suite + detector fixtures | T02 | done |
+| F3 | Schemas, seeded rng | T03 | done (uncommitted) |
 | F4 | Decision engine + policy text | T04 | todo |
 | F5 | Benign generator (en/te/te-en) | T05 | todo |
 | F6 | Attack injector (6 families × 3 goals) | T06 | todo |
@@ -34,21 +34,23 @@ T01 merged (PR #1, `1cecbad`). T02 acceptance suite written and verified, but **
 | F16 | README, demo, review, release | T20–T21 | todo |
 
 ## Done (with commit SHAs, after your approval)
-- T01 repo setup: `792fc21`, merged via PR #1 as `1cecbad` (2026-10-20); CI green. File list and deviations from PLAN.md: see commit and "Decisions made".
+- T01 repo setup: `792fc21`, merged via PR #1 as `1cecbad` (2026-10-20); CI green.
+- T02 acceptance suite: `da17a8f`, merged via PR #2 as `a5e84e5` (2026-10-20); CI green. Written by the agent in a scratch dir and copied into the protected `tests/acceptance/` by the human (agent may not write there). Raw run fails only on missing modules/commands; no collection errors. File list and deviations from PLAN.md: see commit and "Decisions made".
 
 ## In progress
-- T02: suite (15 `test_ac*.py`, `conftest.py`, `acceptance_support.py`, `pii_patterns.py`, 24 detector fixtures) lives in the session scratchpad under `t02/acceptance/`. The agent may not write `tests/acceptance/` (deny rule + hook; auto-mode also refused unlocking them), so the human copies it in. Verified in a scratch copy of the repo: raw run fails only with ModuleNotFoundError / missing `data` command / missing `app/dashboard.py` (no collection errors); normal run `17 passed, 1 skipped, 88 xfailed`; a stale pending entry fails as XPASS(strict).
+- (none)
 
 ## Uncommitted changes awaiting approval
-- PROGRESS.md: T01 merge recorded; T02 status.
-- `tests/conftest.py`: `PENDING_ACCEPTANCE` strict-xfail map (AC -> task).
-- `DESIGN.md`: §3 adds `LLMRequest`/`LLMResponse`; new §12 lists the interfaces the suite fixes.
-- After copy-in: `tests/acceptance/**` (proposed commit `test: acceptance suite`).
+T03, proposed branch `feat/t03-schema-rng` from `main` (not created yet):
+- `src/injbench/schema.py`: DESIGN §3 models (strict, `extra="forbid"`), ExtractedFacts validators, `record_key`, `LLMResponse`.
+- `src/injbench/rng.py`: `make_rng(seed, *keys)`.
+- `tests/unit/test_schema.py`, `tests/unit/test_rng.py` (37 tests).
+- PROGRESS.md: T02 merged, T03 status.
 
 ## Next up
-1. Human: copy the staged suite into `tests/acceptance/`, then approve the T02 commit.
+1. Approve branch `feat/t03-schema-rng` + T03 commit; push and PR.
 2. Answer open questions 1–4 in SPEC.md Part 1 (they affect T08/T10).
-3. T03 (`schema.py`, `rng.py`); each task deletes its entries from `PENDING_ACCEPTANCE` when its ACs pass.
+3. T04 (`engine.decide` + `agent/policy.md`); each task deletes its entries from `PENDING_ACCEPTANCE` when its ACs pass.
 
 ## Decisions made
 - Size Large, trimmed: five planning docs only; no separate ADR, threat-model or prompt files.
@@ -77,3 +79,9 @@ T01 merged (PR #1, `1cecbad`). T02 acceptance suite written and verified, but **
   - AC-11 checks the spec's same-run-id replay byte-for-byte, plus a fresh run-id served fully from cache (outcomes equal; not summary bytes, since wall-clock engine latency differs), plus non-zero exit on cache miss.
   - AC-12 fixes percentiles to numpy's linear method, `tokens_per_doc` as mean tokens per trial (blocked trials count as 0), and classifier FPR per benign doc.
   - AC-15's real >=95% gate skips until T18 writes `results/v1-main/label_check.md`.
+- T03 (2026-10-20):
+  - Every model is strict and rejects unknown fields (DESIGN only required it for ExtractedFacts); catches typos in generated data and fixtures early.
+  - ExtractedFacts' "date within ±400 days of doc date" check runs only when the caller passes `context={"doc_date": ...}` (documents carry no date field of their own).
+  - Invariants added in the schema: RunRecord `key == config|doc_id|trial`; Profile canary starts `CANARY-`. No twin_id/attack pairing invariant, because acceptance tests build poisoned docs without twins.
+  - `LLMRequest` deferred to T08 (its message/tool shape depends on the adapter); `LLMResponse` defined now, as the suite constructs it.
+  - `make_rng` hashes `json.dumps([seed, *keys])` with SHA-256 into PCG64: no `hash()`, no global state, NFC-normalised string keys, int and str keys distinct.
