@@ -214,6 +214,14 @@ class SummaryRow(Model):
     metrics: dict[str, MetricValue]
 
 
+class LabelCheck(Model):
+    """Detector-human agreement on hand-labelled trials (R10)."""
+
+    agreement: float
+    n: int
+    disagreements: list[str]
+
+
 class ModelSpec(Model):
     provider: str
     model_id: str

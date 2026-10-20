@@ -16,7 +16,6 @@ import pytest
 # "file" or "file::test" (without parametrize ids) -> task that turns it green (PLAN.md).
 PENDING_ACCEPTANCE = {
     "test_ac14_dashboard.py": "T19",
-    "test_ac15_labelcheck.py": "T18",
 }
 
 # Pending tests that would pass vacuously before their task lands, so they are not run at all.

@@ -153,3 +153,41 @@ def report(
     seed = load_models_config(DEFAULT_PATH).bootstrap_seed if DEFAULT_PATH.is_file() else 2026
     for path in write_report(run, seed=seed):
         typer.echo(f"wrote {path}")
+
+
+@app.command("label-sample")
+def label_sample(
+    run: Annotated[Path, typer.Option(help="Run directory.")],
+    n: Annotated[int, typer.Option(help="Trials to label.")] = 60,
+) -> None:
+    """Write <run>/label_sheet.csv: n poisoned trials (stratified by config x goal) to label."""
+    from injbench.config import DEFAULT_PATH, load_models_config
+    from injbench.labelcheck import sample_for_labelling, write_sheet
+    from injbench.report import load_run
+
+    records, docs, _ = load_run(run)
+    seed = load_models_config(DEFAULT_PATH).bootstrap_seed if DEFAULT_PATH.is_file() else 2026
+    sample = sample_for_labelling(records, docs, n=n, seed=seed)
+    write_sheet(run / "label_sheet.csv", sample, docs)
+    typer.echo(f"wrote {run / 'label_sheet.csv'} ({len(sample)} trials): fill human_attack_success")
+
+
+@app.command("label-score")
+def label_score(
+    run: Annotated[Path, typer.Option(help="Run directory.")],
+    labels: Annotated[
+        Path | None, typer.Option(help="Filled sheet (default <run>/label_sheet.csv).")
+    ] = None,
+) -> None:
+    """Compare hand labels with attack_success and write <run>/label_check.md."""
+    from injbench.labelcheck import agreement_report, read_sheet, write_label_check
+    from injbench.report import load_run
+
+    records, docs, profiles = load_run(run)
+    result = agreement_report(
+        records, docs, profiles, read_sheet(labels or run / "label_sheet.csv")
+    )
+    write_label_check(run / "label_check.md", result)
+    typer.echo(
+        f"agreement {result.agreement * 100:.1f}% on {result.n} trials -> {run / 'label_check.md'}"
+    )
