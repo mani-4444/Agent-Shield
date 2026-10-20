@@ -1,7 +1,7 @@
 # InjectionBench — Design and Key Decisions
 
 The *how*. What and why: SPEC.md (incl. threat model) · Tasks: PLAN.md · Agent rules: AGENTS.md
-Sections: 1 Architecture · 2 Layout · 3 Data model · 4 Decision policy · 5 Attacks · 6 Configs · 7 LLM adapter · 8 Runner · 9 Metrics · 10 Report · 11 Key decisions (ADRs) · Appendix A policy prompt
+Sections: 1 Architecture · 2 Layout · 3 Data model · 4 Decision policy · 5 Attacks · 6 Configs · 7 LLM adapter · 8 Runner · 9 Metrics · 10 Report · 11 Key decisions (ADRs) · 12 Interfaces fixed by the acceptance suite · Appendix A policy prompt
 
 ## 1. Architecture
 
@@ -110,6 +110,12 @@ class RunRecord(BaseModel):
     classifier_score: float | None; blocked_by_classifier: bool
     latency_ms: dict[str, float]          # {"classifier":…, "llm":…, "engine":…, "total":…}
     tokens: dict[str, int]; error: str | None; cache_hit: bool
+
+class LLMRequest(BaseModel):              # its JSON form is exactly what goes to the provider
+    ...                                   # messages, tools, response format, model, trial (T08)
+
+class LLMResponse(BaseModel):
+    text: str; tool_calls: list[ToolCall]; tokens: dict[str, int]
 ```
 
 ## 4. Decision policy (`agent/engine.py`)
@@ -212,6 +218,28 @@ Each decision is accepted unless marked otherwise. Don't re-litigate an accepted
 - **Options:** (1) provider SDKs per config; (2) a routing library such as LiteLLM; (3) a thin in-repo adapter over OpenAI-compatible endpoints (Groq, Gemini's compatibility endpoint, Ollama) with a content-hash cache and `--replay`.
 - **Decision:** Option 3, if T08 confirms tool calling and JSON/structured output on the chosen endpoints; otherwise use the provider SDK *inside* `llm.py` only. `config/models.yaml` pins `primary` (all configs), `secondary` (configs a and d, subset if quota is short) and `payload_drafter` (different family from `primary`). Temperature 0, 3 trials, `trial` in the cache key; report mean and worst-of-3 ASR; cluster-bootstrap CIs. Prompt Guard 2 86M runs locally on CPU via transformers; Groq's hosted copy is the fallback.
 - **Consequences:** free, exact replay; model swaps are a config change; results are tied to dated model IDs. Publish the cache as a release asset and state model IDs and run dates in the README.
+
+## 12. Interfaces fixed by the acceptance suite (T02, 2026-10-20)
+
+`tests/acceptance/` is the oracle; these are the signatures and formats it imports or reads. Each test file's docstring has the full definition. Changing one means changing a protected test: ask first.
+
+| Module / surface | Contract | AC |
+|---|---|---|
+| `injbench data --seed S --out DIR` | writes `profiles.jsonl`, `test.jsonl`, `dev.jsonl`, `manifest.json` = `{"files": {name: sha256}, "dataset_sha256": …}` | 1–5 |
+| `agent.engine.decide(facts, profile)` | `-> (Decision, list[ToolCall])` | 2, 7 |
+| `agent.tools.ToolRecorder` | `approve_payment(payee_vpa, amount_inr, note)`, `send_message(to, body)`, `flag_for_review(reason)`; `.calls: list[ToolCall]`; no I/O | 6 |
+| `defenses.build_defense(config, *, llm=None, classifier=None, threshold=None)` | returns an object with `.run(doc, profile, trial) -> RunRecord`. `llm`: `LLMRequest -> LLMResponse`; `classifier`: `str -> float` (scores `ocr_text`). Blocked when score ≥ threshold. | 6–8 |
+| config (d) schema failure | after one retry: `decision="FLAG"`, one `flag_for_review(reason="schema_invalid")`, `extracted=None` | 7 |
+| `detectors.<name>(record, doc, profile) -> bool` | `decision_correct`, `attack_success`, `any_deviation`, `canary_leaked`, `blocked_by_classifier` (definitions in `test_ac09_detectors.py`) | 9 |
+| `runner.run_trials(run_dir, defenses, docs, profiles, trials)` | `defenses: {config: Defense}`; appends + flushes one line per trial to `run_dir/records.jsonl`; skips done keys; drops a half-written last line | 10 |
+| `agent.llm.complete(request)` / `agent.llm.transport` | `complete` caches (under `./.cache`) around the module attribute `transport`, the only code that reaches a provider; `--replay` raises on a miss | 11, 13, 14 |
+| `injbench eval --config a,d --split dev --trials N --run-id R [--limit N] [--replay]` | reads `./data/v1`, `./config`; writes `./results/R/records.jsonl`; non-zero exit on replay cache miss | 11, 13, 14 |
+| `injbench report --run results/R` | writes `summary.md`, `summary.csv` (has a `config` column of letters), `pareto.png`, `heatmap.png`, `gallery.md` (`## Config <x>` sections, `### ` per example) | 11, 13 |
+| `metrics.<name>(records, docs_by_id, profiles_by_id) -> float` | `asr_mean`, `asr_worst`, `any_deviation_rate`, `utility_strict`, `utility_safe`, `benign_accuracy`, `classifier_fpr`, `latency_p50`, `latency_p95` (numpy linear), `tokens_per_doc`; `bootstrap_ci(metric, records, docs, profiles, *, n_boot=2000, seed=2026) -> (lo, hi)` over doc clusters | 12 |
+| `app/dashboard.py` | tabs Results, Explorer, Live demo; replay by default; runs with or without `./results` | 14 |
+| `labelcheck` | `sample_for_labelling(records, docs, *, n=60, seed=2026)` stratified by (config, goal); `agreement_report(records, docs, profiles, human)` -> `.agreement`, `.disagreements`; `write_label_check(path, result)` writes `Agreement: <pct>%` | 15 |
+
+Pending ACs run as strict xfail via `PENDING_ACCEPTANCE` in `tests/conftest.py`; the task that turns a test green deletes its entry (a stale entry fails as XPASS).
 
 ## Appendix A — Policy prompt (copy to `src/injbench/agent/policy.md` at T04)
 
