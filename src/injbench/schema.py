@@ -199,6 +199,21 @@ class LLMResponse(Model):
     cache_hit: bool = False
 
 
+class MetricValue(Model):
+    """One metric cell: point estimate, 95% cluster-bootstrap CI, documents behind it."""
+
+    value: float | None
+    lo: float | None
+    hi: float | None
+    n_docs: int
+
+
+class SummaryRow(Model):
+    config: str
+    group: str  # "all", or "family=<F>", "goal=<G>", "lang=<L>"
+    metrics: dict[str, MetricValue]
+
+
 class ModelSpec(Model):
     provider: str
     model_id: str
