@@ -147,12 +147,11 @@ def test_promptguard_takes_max_over_windows_and_malicious_label() -> None:
 
     class Tok:
         pad_token_id = 0
+        cls_token_id = 101
+        sep_token_id = 102
 
         def __call__(self, text: str, add_special_tokens: bool) -> dict[str, list[int]]:
             return {"input_ids": [1] * 600 + [7] * 10}  # two windows; the injection sits at the end
-
-        def build_inputs_with_special_tokens(self, ids: list[int]) -> list[int]:
-            return [101, *ids, 102]
 
     class Model:
         class config:
