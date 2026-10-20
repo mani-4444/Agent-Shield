@@ -1,0 +1,26 @@
+# Single source of truth for model IDs, sampling and seeds (AGENTS.md "Conventions").
+# Changing this file needs human approval. Model IDs are pinned at T08 (DESIGN.md ADR-3).
+
+models:
+  primary:            # all configs (a)-(e)
+    provider: TODO    # groq | gemini | ollama; pin at T08
+    model_id: TODO-pin-at-T08
+  secondary:          # configs a and d only, subset if quota is short
+    provider: TODO
+    model_id: TODO-pin-at-T08
+  payload_drafter:    # must be a different model family from primary (SPEC.md Part 4)
+    provider: TODO
+    model_id: TODO-pin-at-T08
+  classifier:         # Prompt Guard 2 86M, local via transformers (ADR-3)
+    model_id: TODO-pin-at-T10
+    threshold: TODO   # tau, calibrated on dev benign (FPR <= 5%) at T10
+
+sampling:
+  temperature: 0
+  max_tokens: TODO    # pin at T08
+  trials: 3
+
+seeds:
+  data: 2026          # test split
+  dev_data: TODO      # dev split uses a different seed (SPEC.md R1); set at T05
+  bootstrap: 2026     # cluster bootstrap, 2,000 resamples (DESIGN.md §9)

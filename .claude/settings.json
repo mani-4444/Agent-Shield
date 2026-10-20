@@ -1,0 +1,55 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Edit(./.env)",
+      "Edit(./tests/acceptance/**)",
+      "Edit(./data/v1/**)"
+    ],
+    "ask": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)",
+      "Bash(git reset:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "PowerShell(git commit:*)",
+      "PowerShell(git push:*)",
+      "PowerShell(git merge:*)",
+      "PowerShell(git rebase:*)",
+      "PowerShell(git reset:*)",
+      "PowerShell(git cherry-pick:*)",
+      "PowerShell(git branch:*)",
+      "PowerShell(git checkout:*)",
+      "PowerShell(git switch:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          { "type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect_paths.py\"" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          { "type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/format_edited.py\"" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_gate.py\"" }
+        ]
+      }
+    ]
+  }
+}
