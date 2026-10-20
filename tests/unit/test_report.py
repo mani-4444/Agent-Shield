@@ -64,3 +64,19 @@ def test_write_report_needs_records(tmp_path: Path) -> None:
     (tmp_path / "run_config.json").write_text(json.dumps({"data_dir": "data/v1"}), encoding="utf-8")
     with pytest.raises(ValueError):
         write_report(tmp_path)
+
+
+def test_int_formatting_has_no_negative_zero() -> None:
+    from injbench.report import _int
+
+    assert _int(-0.3) == "0" and _int(12.6) == "13" and _int(-5.5) == "-6"
+
+
+def test_classifier_fpr_is_na_without_a_classifier(run_parts: tuple, tmp_path: Path) -> None:
+    from injbench.report import summary_md
+
+    records, docs, profiles = run_parts
+    no_clf = [r.model_copy(update={"classifier_score": None}) for r in records if r.config == "a"]
+    text = summary_md(summarize(no_clf, docs, profiles, n_boot=20), no_clf, tmp_path)
+    row = next(line for line in text.splitlines() if line.startswith("| (a) none"))
+    assert "n/a" in row
