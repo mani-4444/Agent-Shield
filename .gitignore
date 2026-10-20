@@ -1,0 +1,6 @@
+.env
+.cache/
+results/*/records.jsonl
+results/*/progress.log
+__pycache__/
+.venv/
