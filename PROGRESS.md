@@ -1,7 +1,7 @@
-# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T09 session
+# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T19 session
 
 ## Current state
-T01–T04 merged (`main` at `b99811a`). Branch `feat/t05-offline-pipeline` (pushed, no PR yet) has T05–T09 committed: dataset + attacks (`data/v1`), detectors, mock tools + cached LLM adapter, configs (a)/(b). `uv run pytest -q`: 226 passed, 1 skipped, 42 xfailed. **Resume at T10** on this same branch.
+**Stopping point reached.** All offline work T05–T13 and T17–T19 is committed on `feat/t05-offline-pipeline` (PR open, awaiting the human's merge). Every acceptance criterion is implemented: `uv run pytest -q` 316 passed, 1 skipped (AC-15's real gate waits for hand labels); `uv run pytest tests/acceptance --runxfail` 103 passed, 1 skipped. What remains needs the human: keys, model choice, Prompt Guard licence, Telugu review, then the live pilot (T14).
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -23,14 +23,14 @@ T01–T04 merged (`main` at `b99811a`). Branch `feat/t05-offline-pipeline` (push
 | F5 | Benign generator (en/te/te-en) | T05 | done (AC-1..AC-3 green) |
 | F6 | Attack injector (6 families × 3 goals) | T06 | done (AC-4, AC-5 green); human review pending |
 | F7 | Detectors | T07 | done (AC-9 green) |
-| F8 | Mock tools + cached LLM adapter | T08 | offline parts done (AC-6 tools green); live check + model pinning need the human |
-| F9 | Configs a–e (+ optional d′) | T09–T11 | (a),(b) done; (c) T10, (d),(e) T11 todo |
-| F10 | Runner (resume, replay) | T12 | todo |
-| F11 | Metrics with cluster bootstrap | T13 | todo |
+| F8 | Mock tools + cached LLM adapter | T08 | offline done; live check + model pinning need the human |
+| F9 | Configs a–e (+ optional d′) | T09–T11 | (a)–(e) done (AC-6/7/8 green); (d′) not built (open question 5); τ calibration needs the model |
+| F10 | Runner (resume, replay) | T12 | done (AC-10, AC-11 green) |
+| F11 | Metrics with cluster bootstrap | T13 | done (AC-12 green) |
 | F12 | Pilot + freeze | T14 | todo |
 | F13 | Full test run | T15 | todo |
 | F14 | AgentDojo subset (stretch) | T16 | todo |
-| F15 | Report, label check, dashboard | T17–T19 | todo |
+| F15 | Report, label check, dashboard | T17–T19 | code done (AC-13/14/15 green); hand labels at T18 need the human |
 | F16 | README, demo, review, release | T20–T21 | todo |
 
 ## Done (with commit SHAs, after your approval)
@@ -39,7 +39,7 @@ T01–T04 merged (`main` at `b99811a`). Branch `feat/t05-offline-pipeline` (push
 - T03 schemas + rng: `839325f` + lint fix `765025b`, merged via PR #3 as `7e4f1ba` (2026-10-20); CI green.
 - T04 engine + policy: `006df7f`, merged via PR #4 as `b99811a` (2026-10-20); CI green.
 - T05+T06 generator + attacks: `a9a519e` on `feat/t05-offline-pipeline` (one commit: T05 alone left AC-4/5 checks passing vacuously, which strict xfail rejects).
-- T07 detectors: `6e48f8a`. T08 tools + LLM adapter (offline): `e76bbea`. T09 configs (a)/(b): `c99641e`. All on `feat/t05-offline-pipeline`, not yet merged. Written by the agent in a scratch dir and copied into the protected `tests/acceptance/` by the human (agent may not write there). Raw run fails only on missing modules/commands; no collection errors. File list and deviations from PLAN.md: see commit and "Decisions made".
+- T07 detectors: `6e48f8a`. T08 tools + LLM adapter (offline): `e76bbea`. T09 configs (a)/(b): `c99641e`. T10 Prompt Guard + (c): `9bc72c4`. T11 (d)/(e): `fb2eeac`. T12 runner + eval: `20bcb66`. T13 metrics: `384a282`. T17 report: `6513c8b`. T18 label check: `f057a49`. T19 dashboard: `85a4c4c`. All on `feat/t05-offline-pipeline`, in one PR. Written by the agent in a scratch dir and copied into the protected `tests/acceptance/` by the human (agent may not write there). Raw run fails only on missing modules/commands; no collection errors. File list and deviations from PLAN.md: see commit and "Decisions made".
 
 ## In progress
 - (none)
@@ -48,9 +48,10 @@ T01–T04 merged (`main` at `b99811a`). Branch `feat/t05-offline-pipeline` (push
 - (none; since 2026-10-20 the agent commits without asking, merges still go through the human)
 
 ## Next up
-1. Agent, offline, on `feat/t05-offline-pipeline`: T10 (Prompt Guard wrapper with chunking + config (c); tested with a fake classifier), T11 (configs (d), (e)), T12 (runner + `eval` CLI, resume, replay), T13 (metrics + bootstrap), T17 (report), T18 (label-check code), T19 (dashboard). Then open one PR; the human merges.
-2. Human, any time before T14: review Telugu strings + 20 docs (Known issues); put API keys in `.env`; pick and approve model IDs for `config/models.yaml` (SPEC open questions 1–4); accept the Prompt Guard 2 license on Hugging Face.
-3. Then T08 live check, T10 threshold calibration on dev, T14 pilot and freeze (all need keys/quota).
+1. Human: merge the `feat/t05-offline-pipeline` PR.
+2. Human, before T14: (a) review Telugu strings + F4 templates + 20 docs (Known issues); (b) put keys in `.env`; (c) choose and approve model IDs, provider and max_tokens for `config/models.yaml` (SPEC open questions 1–4; ADR-3); (d) accept the Prompt Guard 2 licence on Hugging Face and set `models.classifier.model_id`.
+3. Then, with approval for quota: T08 live check (one call per provider), `uv run injbench calibrate` on dev and put tau in `config/models.yaml` (T10), AGENTS.md smoke run (`eval --config all --split dev --trials 1 --limit 5 --run-id smoke` + `report`), T14 pilot on dev and the freeze gate.
+4. Later: T15 full run (quota), T16 AgentDojo (stretch), T18 hand-label 60 trials (`injbench label-sample` / `label-score`), T20 README + demo, T21 review.
 
 ## Decisions made
 - Size Large, trimmed: five planning docs only; no separate ADR, threat-model or prompt files.
@@ -108,6 +109,13 @@ T01–T04 merged (`main` at `b99811a`). Branch `feat/t05-offline-pipeline` (push
 - T08 (2026-10-20): `test_ac11_replay.py::test_replay_cache_miss_fails_without_calling_out` passes vacuously while `eval` is missing (exit 2 counts as "non-zero"), so `tests/conftest.py` marks it xfail with `run=False` (`NOT_RUN_UNTIL_IMPLEMENTED`). At T12, confirm it fails for the right reason before removing the entry.
 - T09 (2026-10-20): (a)/(b) allow 3 tool rounds; calls in a 4th response are not executed. Missing DECISION or a provider error -> FLAG with `error`; ReplayMiss propagates. `user_message` = final assistant text (a leak surface). Spotlight token = 8 hex chars from `make_rng(seed, "spotlight", doc_id, trial)`; datamark U+02C6 replaces spaces/tabs, newlines kept.
 - Process (2026-10-20): one T08 commit briefly went in red because `pytest | tail` hid the exit code; check chains now use `set -o pipefail`.
+- T10 (2026-10-20): Prompt Guard runs locally, lazily loaded; windows of 510 content tokens + 2 specials, step 256, max malicious probability (label found from `id2label`). Scores cached in `./.cache/promptguard`. A blocked doc gets `flag_for_review("prompt_injection_detected")`. `calibrate_threshold` = smallest tau with dev-benign FPR <= 5% (score >= tau blocks). `injbench calibrate` refuses `--split test` and only prints tau. Without a pinned classifier model or tau, (c)/(e) raise `NotCalibrated` (no silent defaults).
+- T11 (2026-10-20): (d) accepts bare JSON or one fenced block; any prose around it fails validation and triggers the retry. The ±400-day date check is not applied (documents carry no date; using gold would leak ground truth). Provider errors -> FLAG with `error` and no tool call; schema failures -> FLAG + `flag_for_review("schema_invalid")`. (d′) not built (open question 5).
+- T12 (2026-10-20): trials numbered 0..n-1; `progress.log` one line per trial; a live run on the full test split asks for interactive confirmation (an agent session aborts), replay never asks. Resuming a run built from a different dataset hash is refused.
+- T13 (2026-10-20): ratio metrics decompose into per-document numerators/denominators, so the bootstrap resamples documents in numpy (checked against a naive re-scoring reference). Empty denominators -> NaN -> blank cells. Group rows (family/goal/lang) carry attack metrics only. Bootstrap rng = `make_rng(seed, "bootstrap")`, same draws for every metric.
+- T17 (2026-10-20): palette = reference categorical slots 1–5, validated with the dataviz checker (contrast WARN relieved by direct labels and the table); heatmap on a single-hue blue ramp with values in cells; low n (< 30 docs) marked in tables and cells. summary.csv has no timestamps or paths. Gallery: up to 5 per config, attack successes first.
+- T18 (2026-10-20): the label sheet omits detector verdicts (blind labelling); labels are yes/no, blanks rejected; agreement is on `attack_success`.
+- T19 (2026-10-20): dashboard is replay-only unless the Live toggle is on; errors (replay miss, NotCalibrated, NotPinned) are shown in the UI.
 
 ## Known issues / blockers
 - **Human review needed before the T14 freeze (T06):** every Telugu string in `src/injbench/data/telugu.py` and the F4 templates in `src/injbench/data/templates/payloads.json`, plus 20 random docs from `data/v1/test.jsonl`. Regenerate `data/v1` after any template edit.
