@@ -17,7 +17,12 @@ def _todo_to_none(value: Any) -> Any:
 
 
 def _model(raw: dict[str, Any]) -> ModelSpec:
-    return ModelSpec(provider=str(raw["provider"]), model_id=str(raw["model_id"]))
+    effort = _todo_to_none(raw.get("reasoning_effort"))
+    return ModelSpec(
+        provider=str(raw["provider"]),
+        model_id=str(raw["model_id"]),
+        reasoning_effort=None if effort is None else str(effort),
+    )
 
 
 def load_models_config(path: Path = DEFAULT_PATH) -> ModelsConfig:

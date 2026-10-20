@@ -146,6 +146,7 @@ def run_tool_loop(
                 tools=TOOL_SPECS,
                 temperature=settings.temperature,
                 max_tokens=settings.max_tokens,
+                reasoning_effort=settings.model.reasoning_effort,
                 trial=trial,
             )
             response = trace.call(llm, request)

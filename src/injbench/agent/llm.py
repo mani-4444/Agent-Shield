@@ -191,6 +191,8 @@ def openai_transport(request: LLMRequest) -> LLMResponse:
     }
     if request.max_tokens is not None:
         kwargs["max_tokens"] = request.max_tokens
+    if request.reasoning_effort is not None:
+        kwargs["reasoning_effort"] = request.reasoning_effort
     if request.tools:
         kwargs["tools"] = [
             {"type": "function", "function": t.model_dump(mode="json")} for t in request.tools

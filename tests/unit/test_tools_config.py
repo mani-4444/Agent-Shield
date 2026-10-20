@@ -42,3 +42,14 @@ def test_models_yaml_loads_with_todo_as_none() -> None:
 def test_is_pinned() -> None:
     assert not is_pinned(ModelSpec(provider="TODO", model_id="TODO-pin-at-T08"))
     assert is_pinned(ModelSpec(provider="groq", model_id="some-model"))
+
+
+def test_reasoning_effort_is_optional_and_loaded(tmp_path: Path) -> None:
+    text = (ROOT / "config" / "models.yaml").read_text(encoding="utf-8")
+    assert load_models_config(ROOT / "config" / "models.yaml").primary.reasoning_effort is None
+    patched = text.replace(
+        "model_id: TODO-pin-at-T08\n", "model_id: qwen3:8b\n    reasoning_effort: none\n", 1
+    )
+    path = tmp_path / "models.yaml"
+    path.write_text(patched, encoding="utf-8")
+    assert load_models_config(path).primary.reasoning_effort == "none"
