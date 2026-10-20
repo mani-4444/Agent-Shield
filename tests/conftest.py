@@ -17,9 +17,6 @@ import pytest
 PENDING_ACCEPTANCE = {
     "test_ac06_tools.py::test_config_d_engine_tool_calls_land_in_record": "T11",
     "test_ac07_boundary.py": "T11",
-    "test_ac08_gate.py::test_c_blocks_above_threshold": "T10",
-    "test_ac08_gate.py::test_c_blocks_at_threshold": "T10",
-    "test_ac08_gate.py::test_c_below_threshold_calls_llm": "T10",
     "test_ac08_gate.py::test_e_blocks_above_threshold": "T11",
     "test_ac08_gate.py::test_e_blocks_at_threshold": "T11",
     "test_ac08_gate.py::test_e_below_threshold_calls_llm": "T11",

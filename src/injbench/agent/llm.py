@@ -58,6 +58,10 @@ def configure(*, cache_dir: Path | None = None, replay: bool | None = None) -> N
         _state.replay = replay
 
 
+def replay_enabled() -> bool:
+    return _state.replay
+
+
 def cache_key(request: LLMRequest) -> str:
     text = unicodedata.normalize("NFC", request.model_dump_json())
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
