@@ -1,7 +1,7 @@
-# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T03 session
+# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T04 session
 
 ## Current state
-T01 merged (PR #1), T02 merged (PR #2, `a5e84e5`). T03 (`schema.py`, `rng.py` + unit tests) done, uncommitted, awaiting branch + commit approval. `uv run pytest -q`: 54 passed, 1 skipped, 88 xfailed. Next: T04.
+T01–T03 merged (PRs #1–#3; `main` at `7e4f1ba`). T04 (`engine.decide`, `agent/policy.md`) done, uncommitted, awaiting branch + commit approval. `uv run pytest -q`: 96 passed, 1 skipped, 88 xfailed. Next: T05.
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -18,8 +18,8 @@ T01 merged (PR #1), T02 merged (PR #2, `a5e84e5`). T03 (`schema.py`, `rng.py` + 
 |---|---|---|---|
 | F1 | Repo setup, hooks, CI | T01 | done |
 | F2 | Acceptance suite + detector fixtures | T02 | done |
-| F3 | Schemas, seeded rng | T03 | done (uncommitted) |
-| F4 | Decision engine + policy text | T04 | todo |
+| F3 | Schemas, seeded rng | T03 | done |
+| F4 | Decision engine + policy text | T04 | done (uncommitted) |
 | F5 | Benign generator (en/te/te-en) | T05 | todo |
 | F6 | Attack injector (6 families × 3 goals) | T06 | todo |
 | F7 | Detectors | T07 | todo |
@@ -35,22 +35,23 @@ T01 merged (PR #1), T02 merged (PR #2, `a5e84e5`). T03 (`schema.py`, `rng.py` + 
 
 ## Done (with commit SHAs, after your approval)
 - T01 repo setup: `792fc21`, merged via PR #1 as `1cecbad` (2026-10-20); CI green.
-- T02 acceptance suite: `da17a8f`, merged via PR #2 as `a5e84e5` (2026-10-20); CI green. Written by the agent in a scratch dir and copied into the protected `tests/acceptance/` by the human (agent may not write there). Raw run fails only on missing modules/commands; no collection errors. File list and deviations from PLAN.md: see commit and "Decisions made".
+- T02 acceptance suite: `da17a8f`, merged via PR #2 as `a5e84e5` (2026-10-20); CI green.
+- T03 schemas + rng: `839325f` + lint fix `765025b`, merged via PR #3 as `7e4f1ba` (2026-10-20); CI green. Written by the agent in a scratch dir and copied into the protected `tests/acceptance/` by the human (agent may not write there). Raw run fails only on missing modules/commands; no collection errors. File list and deviations from PLAN.md: see commit and "Decisions made".
 
 ## In progress
 - (none)
 
 ## Uncommitted changes awaiting approval
-T03, proposed branch `feat/t03-schema-rng` from `main` (not created yet):
-- `src/injbench/schema.py`: DESIGN §3 models (strict, `extra="forbid"`), ExtractedFacts validators, `record_key`, `LLMResponse`.
-- `src/injbench/rng.py`: `make_rng(seed, *keys)`.
-- `tests/unit/test_schema.py`, `tests/unit/test_rng.py` (37 tests).
-- PROGRESS.md: T02 merged, T03 status.
+T04, proposed branch `feat/t04-engine-policy` from `main` (not created yet):
+- `src/injbench/agent/__init__.py`, `src/injbench/agent/engine.py` (`decide`, `remaining_budget`, `user_message`).
+- `src/injbench/agent/policy.md`: DESIGN.md Appendix A, extracted verbatim by script.
+- `tests/unit/test_engine.py` (42 tests).
+- PROGRESS.md: T03 merged, T04 status.
 
 ## Next up
-1. Approve branch `feat/t03-schema-rng` + T03 commit; push and PR.
+1. Approve branch `feat/t04-engine-policy` + T04 commit; push and PR.
 2. Answer open questions 1–4 in SPEC.md Part 1 (they affect T08/T10).
-3. T04 (`engine.decide` + `agent/policy.md`); each task deletes its entries from `PENDING_ACCEPTANCE` when its ACs pass.
+3. T05 (benign generator, `injbench data`; turns AC-1, AC-2, AC-3 data tests green); each task deletes its entries from `PENDING_ACCEPTANCE` when its ACs pass.
 
 ## Decisions made
 - Size Large, trimmed: five planning docs only; no separate ADR, threat-model or prompt files.
@@ -86,3 +87,9 @@ T03, proposed branch `feat/t03-schema-rng` from `main` (not created yet):
   - `LLMRequest` deferred to T08 (its message/tool shape depends on the adapter); `LLMResponse` defined now, as the suite constructs it.
   - `make_rng` hashes `json.dumps([seed, *keys])` with SHA-256 into PCG64: no `hash()`, no global state, NFC-normalised string keys, int and str keys distinct.
   - PR #3 CI failed on I001 in two protected acceptance files: ruff classifies `injbench.<mod>` as first-party only once `<mod>` exists, so adding `schema.py` changed the expected import order; local runs passed on a stale ruff cache. Fix in pyproject: `known-first-party = ["injbench"]` and I001 ignored for `tests/acceptance/**` (frozen; also keeps `ruff check --fix .` from rewriting them). Lesson: run `ruff check . --no-cache` before proposing a commit.
+- T04 (2026-10-20):
+  - Payee match is exact (case-sensitive); a payment request with no payee is FLAG("unknown payee"). Boundaries: amount == remaining budget -> APPROVE; debit == threshold -> NO_ACTION; an overspent profile WAITs on every trusted payment.
+  - `approve_payment` args from the engine: `{payee_vpa, amount_inr, note: ""}`. The engine never calls `send_message`.
+  - `user_message(decision, facts)`: fixed templates built from facts only (never profile/canary), for configs (d)/(e) at T11.
+  - `policy.md` is checked in tests to equal DESIGN.md Appendix A byte for byte and to contain no anti-injection wording; editing either requires editing both (frozen at T14).
+  - A unit test checks all 24 protected detector fixtures' gold decisions against `decide`, and the built wheel was checked to include `agent/policy.md`.
