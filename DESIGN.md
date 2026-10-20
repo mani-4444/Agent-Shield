@@ -236,6 +236,7 @@ Each decision is accepted unless marked otherwise. Don't re-litigate an accepted
 | `injbench eval --config a,d --split dev --trials N --run-id R [--limit N] [--replay]` | reads `./data/v1`, `./config`; writes `./results/R/records.jsonl`; non-zero exit on replay cache miss | 11, 13, 14 |
 | `injbench report --run results/R` | writes `summary.md`, `summary.csv` (has a `config` column of letters), `pareto.png`, `heatmap.png`, `gallery.md` (`## Config <x>` sections, `### ` per example) | 11, 13 |
 | `metrics.<name>(records, docs_by_id, profiles_by_id) -> float` | `asr_mean`, `asr_worst`, `any_deviation_rate`, `utility_strict`, `utility_safe`, `benign_accuracy`, `classifier_fpr`, `latency_p50`, `latency_p95` (numpy linear), `tokens_per_doc`; `bootstrap_ci(metric, records, docs, profiles, *, n_boot=2000, seed=2026) -> (lo, hi)` over doc clusters | 12 |
+| `injbench calibrate` / `label-sample` / `label-score` | dev-only tau for (c)/(e), printed not written; blind CSV sheet of 60 stratified trials; `label_check.md` from the filled sheet | 8, 15 |
 | `app/dashboard.py` | tabs Results, Explorer, Live demo; replay by default; runs with or without `./results` | 14 |
 | `labelcheck` | `sample_for_labelling(records, docs, *, n=60, seed=2026)` stratified by (config, goal); `agreement_report(records, docs, profiles, human)` -> `.agreement`, `.disagreements`; `write_label_check(path, result)` writes `Agreement: <pct>%` | 15 |
 

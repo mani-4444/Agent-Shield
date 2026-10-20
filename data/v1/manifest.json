@@ -1,0 +1,9 @@
+{
+  "dataset_sha256": "6d8db7e27d8817807947dee76f9b9ad38373919468b93cd96dc41c0c43637149",
+  "files": {
+    "dev.jsonl": "4741544b846769dc22a5386dee92d581d053222cd85aba59fcc77b314a738e90",
+    "profiles.jsonl": "7b6ca3faf0faf5c118b061b11cd9306b53a71e819814246843f827c1b46abef5",
+    "test.jsonl": "d3c5b40b9671ae9ab67c34bd02df885b4dff2b27a9190ec424d30e324648f560"
+  },
+  "seed": 2026
+}

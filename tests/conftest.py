@@ -14,31 +14,10 @@ See the raw failures with `uv run pytest tests/acceptance --runxfail`.
 import pytest
 
 # "file" or "file::test" (without parametrize ids) -> task that turns it green (PLAN.md).
-PENDING_ACCEPTANCE = {
-    "test_ac01_determinism.py": "T05",
-    "test_ac02_gold.py": "T05",
-    "test_ac03_pii.py::test_generated_data_is_clean": "T05",
-    "test_ac03_pii.py::test_canaries_are_fake": "T05",
-    "test_ac04_twins.py": "T06",
-    "test_ac05_hidden.py": "T06",
-    "test_ac06_tools.py::test_tool_recorder_logs_every_call": "T08",
-    "test_ac06_tools.py::test_config_a_llm_tool_calls_land_in_record": "T09",
-    "test_ac06_tools.py::test_config_d_engine_tool_calls_land_in_record": "T11",
-    "test_ac07_boundary.py": "T11",
-    "test_ac08_gate.py::test_c_blocks_above_threshold": "T10",
-    "test_ac08_gate.py::test_c_blocks_at_threshold": "T10",
-    "test_ac08_gate.py::test_c_below_threshold_calls_llm": "T10",
-    "test_ac08_gate.py::test_e_blocks_above_threshold": "T11",
-    "test_ac08_gate.py::test_e_blocks_at_threshold": "T11",
-    "test_ac08_gate.py::test_e_below_threshold_calls_llm": "T11",
-    "test_ac09_detectors.py::test_detector_verdicts": "T07",
-    "test_ac10_resume.py": "T12",
-    "test_ac11_replay.py": "T12",
-    "test_ac12_metrics.py": "T13",
-    "test_ac13_report.py": "T17",
-    "test_ac14_dashboard.py": "T19",
-    "test_ac15_labelcheck.py": "T18",
-}
+PENDING_ACCEPTANCE: dict[str, str] = {}  # all ACs implemented as of T19
+
+# Pending tests that would pass vacuously before their task lands, so they are not run at all.
+NOT_RUN_UNTIL_IMPLEMENTED: set[str] = set()
 
 
 def _pending_task(item: pytest.Item) -> str | None:
@@ -56,6 +35,9 @@ def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
             item.add_marker(pytest.mark.enable_socket)
         task = _pending_task(item)
         if task:
+            run = f"{item.path.name}::{getattr(item, 'originalname', item.name)}" not in (
+                NOT_RUN_UNTIL_IMPLEMENTED
+            )
             item.add_marker(
-                pytest.mark.xfail(strict=True, reason=f"pending: implemented in {task}")
+                pytest.mark.xfail(strict=True, run=run, reason=f"pending: implemented in {task}")
             )

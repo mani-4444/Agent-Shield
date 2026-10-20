@@ -1,0 +1,4 @@
+# Byte-exact artefacts: manifest.json hashes and the AC-11 replay check compare raw LF bytes,
+# so git must never convert their line endings.
+data/** -text
+results/** -text
