@@ -15,11 +15,6 @@ import pytest
 
 # "file" or "file::test" (without parametrize ids) -> task that turns it green (PLAN.md).
 PENDING_ACCEPTANCE = {
-    "test_ac06_tools.py::test_config_d_engine_tool_calls_land_in_record": "T11",
-    "test_ac07_boundary.py": "T11",
-    "test_ac08_gate.py::test_e_blocks_above_threshold": "T11",
-    "test_ac08_gate.py::test_e_blocks_at_threshold": "T11",
-    "test_ac08_gate.py::test_e_below_threshold_calls_llm": "T11",
     "test_ac10_resume.py": "T12",
     "test_ac11_replay.py": "T12",
     "test_ac12_metrics.py": "T13",

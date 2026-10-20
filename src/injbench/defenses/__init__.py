@@ -53,6 +53,8 @@ def build_defense(
 ) -> Defense:
     """Construct config (a)-(e). Defaults: the cached adapter and config/models.yaml settings."""
     from injbench.agent import llm as adapter
+    from injbench.defenses.boundary import BoundaryDefense
+    from injbench.defenses.combined import CombinedDefense
     from injbench.defenses.none import NoDefense
     from injbench.defenses.promptguard import PromptGuardDefense
     from injbench.defenses.spotlight import Spotlight
@@ -63,7 +65,12 @@ def build_defense(
         return NoDefense(llm_fn, settings)
     if config == "b":
         return Spotlight(llm_fn, settings)
-    if config == "c":
+    if config == "d":
+        return BoundaryDefense(llm_fn, settings)
+    if config in ("c", "e"):
         tau = default_threshold() if threshold is None else threshold
-        return PromptGuardDefense(llm_fn, settings, classifier or default_classifier(), tau)
-    raise ValueError(f"unknown or not yet implemented config {config!r}; expected one of {CONFIGS}")
+        clf = classifier or default_classifier()
+        if config == "c":
+            return PromptGuardDefense(llm_fn, settings, clf, tau)
+        return CombinedDefense(llm_fn, settings, clf, tau)
+    raise ValueError(f"unknown config {config!r}; expected one of {CONFIGS}")
