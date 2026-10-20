@@ -15,8 +15,7 @@ import pytest
 
 # "file" or "file::test" (without parametrize ids) -> task that turns it green (PLAN.md).
 PENDING_ACCEPTANCE = {
-    "test_ac10_resume.py": "T12",
-    "test_ac11_replay.py": "T12",
+    "test_ac11_replay.py::test_replay_and_report_are_byte_identical": "T17",
     "test_ac12_metrics.py": "T13",
     "test_ac13_report.py": "T17",
     "test_ac14_dashboard.py": "T19",
@@ -24,10 +23,7 @@ PENDING_ACCEPTANCE = {
 }
 
 # Pending tests that would pass vacuously before their task lands, so they are not run at all.
-# test_replay_cache_miss expects a non-zero exit; a missing `eval` command (exit 2) satisfies it.
-NOT_RUN_UNTIL_IMPLEMENTED = {
-    "test_ac11_replay.py::test_replay_cache_miss_fails_without_calling_out",
-}
+NOT_RUN_UNTIL_IMPLEMENTED: set[str] = set()
 
 
 def _pending_task(item: pytest.Item) -> str | None:
