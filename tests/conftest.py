@@ -25,7 +25,6 @@ PENDING_ACCEPTANCE = {
     "test_ac08_gate.py::test_e_blocks_above_threshold": "T11",
     "test_ac08_gate.py::test_e_blocks_at_threshold": "T11",
     "test_ac08_gate.py::test_e_below_threshold_calls_llm": "T11",
-    "test_ac09_detectors.py::test_detector_verdicts": "T07",
     "test_ac10_resume.py": "T12",
     "test_ac11_replay.py": "T12",
     "test_ac12_metrics.py": "T13",
