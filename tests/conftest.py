@@ -14,9 +14,7 @@ See the raw failures with `uv run pytest tests/acceptance --runxfail`.
 import pytest
 
 # "file" or "file::test" (without parametrize ids) -> task that turns it green (PLAN.md).
-PENDING_ACCEPTANCE = {
-    "test_ac14_dashboard.py": "T19",
-}
+PENDING_ACCEPTANCE: dict[str, str] = {}  # all ACs implemented as of T19
 
 # Pending tests that would pass vacuously before their task lands, so they are not run at all.
 NOT_RUN_UNTIL_IMPLEMENTED: set[str] = set()
