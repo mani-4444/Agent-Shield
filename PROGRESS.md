@@ -1,7 +1,7 @@
-# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01 session
+# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01/T02 session
 
 ## Current state
-T01 done (uncommitted, awaiting branch + commit approval): uv project, placeholder `injbench` CLI, ruff/mypy/pytest config, offline socket blocking, hooks, CI. Next: T02.
+T01 merged (PR #1, `1cecbad`). T02 acceptance suite written and verified, but **staged outside the repo** because `tests/acceptance/` is write-protected (see In progress). Branch `feat/t02-acceptance-suite` (local only).
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -16,8 +16,8 @@ T01 done (uncommitted, awaiting branch + commit approval): uv project, placehold
 ## Feature list
 | ID | Feature | Tasks | Status |
 |---|---|---|---|
-| F1 | Repo setup, hooks, CI | T01 | done (uncommitted) |
-| F2 | Acceptance suite + detector fixtures | T02 | todo |
+| F1 | Repo setup, hooks, CI | T01 | done |
+| F2 | Acceptance suite + detector fixtures | T02 | in progress (awaiting copy-in) |
 | F3 | Schemas, seeded rng | T03 | todo |
 | F4 | Decision engine + policy text | T04 | todo |
 | F5 | Benign generator (en/te/te-en) | T05 | todo |
@@ -34,27 +34,21 @@ T01 done (uncommitted, awaiting branch + commit approval): uv project, placehold
 | F16 | README, demo, review, release | T20–T21 | todo |
 
 ## Done (with commit SHAs, after your approval)
-- (none yet)
+- T01 repo setup: `792fc21`, merged via PR #1 as `1cecbad` (2026-10-20); CI green. File list and deviations from PLAN.md: see commit and "Decisions made".
 
 ## In progress
-- (none)
+- T02: suite (15 `test_ac*.py`, `conftest.py`, `acceptance_support.py`, `pii_patterns.py`, 24 detector fixtures) lives in the session scratchpad under `t02/acceptance/`. The agent may not write `tests/acceptance/` (deny rule + hook; auto-mode also refused unlocking them), so the human copies it in. Verified in a scratch copy of the repo: raw run fails only with ModuleNotFoundError / missing `data` command / missing `app/dashboard.py` (no collection errors); normal run `17 passed, 1 skipped, 88 xfailed`; a stale pending entry fails as XPASS(strict).
 
 ## Uncommitted changes awaiting approval
-T01, proposed branch `feat/t01-repo-setup` from `main` (not created yet):
-- Renamed `DESIGN (2).md` → `DESIGN.md`, `PLAN (1).md` → `PLAN.md` (names the docs reference).
-- `pyproject.toml` (Python 3.11, uv_build, `injbench` script, deps as approved, CPU torch index on Linux, ruff/mypy/pytest config), `.python-version`, `uv.lock`.
-- `src/injbench/{__init__.py,cli.py,py.typed}`: placeholder Typer CLI (help only).
-- `tests/conftest.py` (`live` tests get sockets back), `tests/unit/test_cli.py`, `tests/unit/test_offline.py`.
-- `.gitignore`, `.env.example` (verbatim from PLAN.md), `config/models.yaml` (TODO placeholders).
-- `CLAUDE.md`: `@AGENTS.md` import (fallback; symlink needs admin/Developer Mode on this machine).
-- `.claude/settings.json`, `.claude/hooks/{protect_paths,stop_gate,format_edited}.py`.
-- `.github/workflows/ci.yml`: uv sync --locked, ruff check, mypy src, pytest (offline).
-- This file.
+- PROGRESS.md: T01 merge recorded; T02 status.
+- `tests/conftest.py`: `PENDING_ACCEPTANCE` strict-xfail map (AC -> task).
+- `DESIGN.md`: §3 adds `LLMRequest`/`LLMResponse`; new §12 lists the interfaces the suite fixes.
+- After copy-in: `tests/acceptance/**` (proposed commit `test: acceptance suite`).
 
 ## Next up
-1. Approve branch + commit for T01.
+1. Human: copy the staged suite into `tests/acceptance/`, then approve the T02 commit.
 2. Answer open questions 1–4 in SPEC.md Part 1 (they affect T08/T10).
-3. T02 (acceptance tests first; extend the existing `tests/conftest.py`, don't recreate it) → T03.
+3. T03 (`schema.py`, `rng.py`); each task deletes its entries from `PENDING_ACCEPTANCE` when its ACs pass.
 
 ## Decisions made
 - Size Large, trimmed: five planning docs only; no separate ADR, threat-model or prompt files.
@@ -71,19 +65,15 @@ T01, proposed branch `feat/t01-repo-setup` from `main` (not created yet):
   - `ruff format` excludes `*.md`: ruff 0.17 formats Python code blocks in Markdown and would rewrite DESIGN/PLAN snippets.
   - torch resolved from the PyTorch CPU index on Linux (CI) to avoid ~2.5 GB CUDA wheels.
   - Deferred from PLAN checklist: gitleaks + pip-audit in CI, CODEOWNERS, branch protection on `main` (GitHub setting, human), sandbox config.
-
-## Known issues / blockers
-- Prompt Guard 2 needs Hugging Face license acceptance + `HF_TOKEN` before T10.
-- `uv` was installed to `%USERPROFILE%\.local\bin` during T01 (user PATH updated); restart VS Code so its processes pick it up. Hooks also fall back to that dir, since the Stop gate initially failed on the stale PATH.
-- Hooks are live in-session. In T01 the protect-paths script was verified by direct invocation; a live write to `tests/acceptance/` was stopped by the permission deny rule first.
-- `CLAUDE.md` is an `@AGENTS.md` import, not a symlink. To switch: enable Windows Developer Mode, `git config core.symlinks true`, recreate as a symlink.
-- mypy will need `types-PyYAML` / `pandas-stubs` once code imports them (new dev deps: ask at that task).
-
-## How to resume
-```bash
-git pull && uv sync
-cat PROGRESS.md && git log --oneline -15
-uv run pytest -q                       # smoke: what's green/red
-# then do the top unfinished task in PLAN.md only; update this file;
-# ask before creating a branch; propose the commit and wait for approval
-```
+- T02 (2026-10-20), decisions taken by the agent under the human's "take decisions" grant:
+  - Interfaces the acceptance suite imports are recorded in DESIGN.md §12 (signatures, CLI flags, file formats).
+  - Pending ACs run as strict xfail (`tests/conftest.py`), so `uv run pytest -q` and CI stay green while the oracle is red by design; the implementing task deletes the entry.
+  - Production imports sit inside test functions so a missing module fails one test instead of breaking collection.
+  - Dataset tests generate their own data in a temp dir via `injbench data` (no dependency on committed `data/v1/`).
+  - AC-3 also bans real bank/UPI brand names and any `+91` not followed by ` 0` (AGENTS.md "Never", SPEC Part 4), and self-tests its regexes so it can't pass vacuously.
+  - AC-4 also checks twin inheritance (profile, type, gold) and goal/twin fit from DESIGN §5 (G1 on non-APPROVE, G2 on APPROVE).
+  - AC-9 fixtures: 6 benign + 3 success/3 non-success per goal; `null` expected = not asserted, used only where a definition is genuinely ambiguous (decision_correct when extra tool calls accompany a matching decision). Canary "last 8 characters" fixtures pass under either reading (raw or normalised tail).
+  - AC-10 simulates a kill with KeyboardInterrupt plus a half-written last line; the runner must leave only valid lines.
+  - AC-11 checks the spec's same-run-id replay byte-for-byte, plus a fresh run-id served fully from cache (outcomes equal; not summary bytes, since wall-clock engine latency differs), plus non-zero exit on cache miss.
+  - AC-12 fixes percentiles to numpy's linear method, `tokens_per_doc` as mean tokens per trial (blocked trials count as 0), and classifier FPR per benign doc.
+  - AC-15's real >=95% gate skips until T18 writes `results/v1-main/label_check.md`.
