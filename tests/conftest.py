@@ -15,8 +15,6 @@ import pytest
 
 # "file" or "file::test" (without parametrize ids) -> task that turns it green (PLAN.md).
 PENDING_ACCEPTANCE = {
-    "test_ac11_replay.py::test_replay_and_report_are_byte_identical": "T17",
-    "test_ac13_report.py": "T17",
     "test_ac14_dashboard.py": "T19",
     "test_ac15_labelcheck.py": "T18",
 }

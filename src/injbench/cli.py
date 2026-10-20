@@ -140,3 +140,16 @@ def eval_(
         raise typer.Exit(code=2) from exc
     errors = sum(r.error is not None for r in records)
     typer.echo(f"{run_dir}: {len(records)} records ({errors} with errors)")
+
+
+@app.command()
+def report(
+    run: Annotated[Path, typer.Option(help="Run directory, e.g. results/<run_id>.")],
+) -> None:
+    """Write summary.md, summary.csv, pareto.png, heatmap.png and gallery.md for a run."""
+    from injbench.config import DEFAULT_PATH, load_models_config
+    from injbench.report import write_report
+
+    seed = load_models_config(DEFAULT_PATH).bootstrap_seed if DEFAULT_PATH.is_file() else 2026
+    for path in write_report(run, seed=seed):
+        typer.echo(f"wrote {path}")
