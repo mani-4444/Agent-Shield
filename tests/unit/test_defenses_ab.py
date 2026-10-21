@@ -169,7 +169,8 @@ def test_tokens_latency_and_cache_hit_accounting() -> None:
     )
     record = build_defense("a", llm=fake, settings=SETTINGS).run(DOC, PROFILE, 0)
     assert record.tokens == {"prompt": 20, "completion": 4}
-    assert record.latency_ms["llm"] == 10.0 and record.latency_ms["total"] >= 0
+    assert record.latency_ms["llm"] == 10.0 and record.latency_ms["total"] == 10.0
+    assert record.latency_ms["wall"] >= 0  # cache hits: total keeps the measured latency
     assert record.cache_hit is True
 
 

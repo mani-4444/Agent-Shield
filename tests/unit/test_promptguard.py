@@ -173,3 +173,20 @@ def test_promptguard_takes_max_over_windows_and_malicious_label() -> None:
     pg._tok, pg._model = Tok(), Model()
     score = pg("whatever")
     assert score == pytest.approx(float(torch.softmax(torch.tensor([-3.0, 3.0]), 0)[1]))
+
+
+def test_blocked_total_latency_is_the_classifier_stage() -> None:
+    from injbench.defenses.promptguard import CachedClassifier
+
+    class Timed:
+        last_latency_ms = 35.0
+
+        def __call__(self, text: str) -> float:
+            return 0.9
+
+    clf: Any = Timed()
+    assert not isinstance(clf, CachedClassifier)
+    record = build_defense("c", llm=NoLLM(), classifier=clf, threshold=0.5, settings=SETTINGS).run(
+        DOC, PROFILE, 0
+    )
+    assert record.latency_ms["total"] == record.latency_ms["classifier"] == 35.0

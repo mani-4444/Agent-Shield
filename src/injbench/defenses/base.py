@@ -92,7 +92,10 @@ def make_record(
     error: str | None = None,
 ) -> RunRecord:
     latency = dict(trace.latency_ms)
-    latency["total"] = (time.perf_counter() - started) * 1000
+    # total = sum of measured stages (llm/classifier latencies are the originally measured ones,
+    # also on cache hits), so it is the same live and on replay; wall = this process's clock.
+    latency["total"] = sum(latency.values())
+    latency["wall"] = (time.perf_counter() - started) * 1000
     return RunRecord(
         key=record_key(config, doc.doc_id, trial),
         config=config,
