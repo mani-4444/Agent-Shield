@@ -4,3 +4,4 @@ results/*/records.jsonl
 results/*/progress.log
 __pycache__/
 .venv/
+results/*.console.log
