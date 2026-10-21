@@ -1,7 +1,7 @@
 # Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T19 session
 
 ## Current state
-**T14 freeze gate signed by the human (2026-10-21).** T15 running unattended as detached processes: `v1-main` (full test split, all configs, 3 trials, local qwen3:8b, ~9 h; then `v1-main-t05` from cache and both reports; log `results/t15.console.log`) and `v1-secondary` (Groq qwen/qwen3.8-27b, configs a/d, first 80 test docs, 1 trial; log `results/secondary.console.log`). If a run stops, re-run the same command: it resumes.
+**Paused by the human at 22:10 on 2026-10-21.** `v1-main` (full test run) stopped at 4,044/6,000 records, 0 errors: configs a, b, c complete, d at ~442/1200, e not started. **To resume:** run `C:/Users/MANIDEEP/AppData/Local/Temp/claude/d--Projects-Agent-Shield/354a1a2a-b315-4578-9020-01bc86bfdbad/scratchpad/t15_run.ps1` again (or `"y" | uv run injbench eval --config all --split test --trials 3 --run-id v1-main` with `HF_HOME=D:/hf-cache`); it skips finished trials (~85 min of (d) left, (e) mostly cache), then builds `v1-main-t05` and both reports. `v1-secondary` is complete (160/160, 0 errors after retries).
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -126,6 +126,7 @@
 - T14 freeze gate (2026-10-21), all approved by the human ("I want the best result"): (1) add the secondary twin-adjusted ASR, implemented as `asr_twin_adjusted` before any test run (dev check: (a) 16.7% vs headline 23.3%, (b) 7.8% vs 13.3%, (c) 10.0% vs 13.3%); (2) freeze `data/v1` (sha256 `6d8db7e2…`, re-verified against the generator), prompts and tau = 0.001122; (3) T15 full test run on local qwen3:8b; (4) secondary model run on Groq qwen/qwen3.8-27b, configs a/d, first 80 test docs x 1 trial (~180K tokens, under the 200K/day cap).
 - T15 setup (2026-10-21): runs are launched as detached PowerShell processes (they survive the agent session ending, which killed the first pilot) that hold `SetThreadExecutionState(ES_CONTINUOUS|ES_SYSTEM_REQUIRED)` so Windows does not sleep; the full-test-split confirmation prompt is answered "y" in the script per the human's approval. `eval` gained `--model primary|secondary` and `--retry-errors` (re-run provider failures; `no_decision` is kept as model behaviour).
 - T15 secondary (2026-10-21): first pass finished 160/160 but 48 trials (42 in (d), 6 in (a)) hit Groq's daily token cap (200K TPD; (a) used ~2.5K tokens/trial on Groq vs ~2K estimated). A detached loop re-runs only those with `--retry-errors` every 20 min (up to 12 rounds) as the quota refills, then rebuilds the report. Do not use the v1-secondary summary until provider errors are 0.
+- T15 secondary done (2026-10-21 17:16): all 48 quota failures succeeded on retry (6 rounds). Result (80 test docs x 1 trial, Groq qwen/qwen3.8-27b): ASR (a) 17.5% [7.5, 30.0] vs (d) 5.0% [0.0, 12.5]; benign accuracy 97.5% vs 100%.
 
 ## Known issues / blockers
 - Telugu strings, F4 templates and a sample of `data/v1/test.jsonl` reviewed by the human on 2026-10-20 ("okay").
