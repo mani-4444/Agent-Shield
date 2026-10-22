@@ -1,4 +1,7 @@
-import { CONFIG_ORDER, groupRows, headline, metric, results } from "../data";
+import { Megaphone, ShieldCheck, Tag, TriangleAlert, type LucideIcon } from "lucide-react";
+import { CONFIG_ORDER, groupRows, headline, metric, results, shortName } from "../data";
+import { Reveal } from "../motion";
+import { SectionHeader } from "./SectionHeader";
 
 const FAMILIES: [string, string][] = [
   ["F1_override", "Direct order to the AI"],
@@ -9,21 +12,22 @@ const FAMILIES: [string, string][] = [
   ["F6_exfil", "Asks for the account number"],
 ];
 
-const FINDINGS = [
-  ["The fact-checker stops almost everything,", "because the AI never gets the power to pay or to see private details."],
-  ["Its weak spot is fake “corrected” details.", "A believable new amount or payee still passes the fact check sometimes."],
-  ["The attack detector catches loud tricks", "like “ignore your rules”, but misses quiet ones such as asking for the account number."],
-  ["A warning label is not enough.", "Telling the AI to ignore instructions in the message helps only a little."],
+const FINDINGS: [LucideIcon, string, string][] = [
+  [ShieldCheck, "The fact-checker stops almost everything", "The AI never gets the power to pay or to see private details, so most tricks have nothing to grab."],
+  [TriangleAlert, "Its weak spot: fake “corrected” details", "A believable new amount or payee can still pass the fact check now and then."],
+  [Megaphone, "The detector hears loud tricks only", "It catches “ignore your rules”, but misses quiet ones like asking for the account number."],
+  [Tag, "A warning label is not enough", "Telling the AI to ignore instructions inside the message helps only a little."],
 ];
 
-/** One hue (danger), mixed into the surface; 0 is plain surface, 50+ in 100 is the strongest step. */
+/**
+ * One hue (danger) laid over the cell colour at rising opacity; 50+ in 100 is the strongest step.
+ * Capped at 60% so the printed number (always --text) stays readable in both themes.
+ */
 function cellStyle(v: number | null) {
   if (v == null) return {};
-  const p = Math.round(Math.min(1, v / 0.5) * 70);
-  return {
-    background: `color-mix(in oklch, var(--danger) ${p}%, var(--surface))`,
-    color: p >= 40 ? "var(--on-strong)" : "var(--text)",
-  };
+  const p = Math.round(Math.min(1, v / 0.5) * 60);
+  const tint = `color-mix(in oklch, var(--danger) ${p}%, transparent)`;
+  return { backgroundColor: "var(--surface-2)", backgroundImage: `linear-gradient(${tint}, ${tint})` };
 }
 
 export function Heatmap() {
@@ -31,68 +35,79 @@ export function Heatmap() {
   const names = Object.fromEntries(headline(results).map((r) => [r.config, r.name]));
 
   return (
-    <section aria-labelledby="where-title" className="section wrapper">
-      <p className="eyebrow">Where defenses fail</p>
-      <h2 id="where-title" className="mt-3 max-w-[22ch] text-step-4 text-ink">
-        Which tricks get through which defense
-      </h2>
+    <section aria-labelledby="where-title" className="section border-y border-line bg-band">
+      <div className="wrapper">
+        <SectionHeader
+          id="where-title"
+          eyebrow="Where defenses fail"
+          title="Which tricks get through which defense"
+          lead="Attacks that worked, out of 100, for each kind of trick. The stronger the red, the more got through."
+        />
 
-      <div className="mt-10 grid gap-12 lg:grid-cols-12 lg:gap-16">
-        <div className="min-w-0 lg:col-span-8">
-          <p className="text-step--1 text-muted">
-            Attacks that worked, out of 100, for each kind of trick. The stronger the red, the more got through.
-            <span className="md:hidden"> Scroll the table sideways to see all five defenses.</span>
-          </p>
-          <div className="mt-4 overflow-x-auto" tabIndex={0} role="region" aria-labelledby="where-title">
-            <table className="w-full min-w-[40rem] table-fixed border-collapse text-step--1">
-              <thead>
-                <tr className="border-b border-line-strong">
-                  <th scope="col" className="w-[30%] py-3 pr-3 text-left font-medium text-muted">
-                    Kind of trick
-                  </th>
-                  {CONFIG_ORDER.map((c) => (
-                    <th key={c} scope="col" className="px-1 py-3 text-center align-bottom font-medium text-muted">
-                      {names[c] ?? c}
+        <div className="mt-14 grid gap-5">
+          <Reveal className="card min-w-0 p-4 sm:p-6">
+            <p className="mb-3 text-sm text-muted md:hidden">Scroll the table sideways to see all five defenses.</p>
+            <div className="overflow-x-auto" tabIndex={0} role="region" aria-labelledby="where-title">
+              <table className="w-full min-w-[40rem] table-fixed border-separate border-spacing-1.5 text-[0.9375rem]">
+                <thead>
+                  <tr>
+                    <th scope="col" className="w-[26%] px-2 pb-2 text-left align-bottom font-medium text-muted">
+                      Kind of trick
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {FAMILIES.map(([fam, label]) => (
-                  <tr key={fam} className="border-b border-line">
-                    <th scope="row" className="py-1 pr-3 text-left font-normal text-ink">
-                      {label}
-                    </th>
-                    {CONFIG_ORDER.map((c) => {
-                      const m = metric(rows.find((r) => r.config === c && r.group === `family=${fam}`), "asr_mean");
-                      const v = m?.value ?? null;
-                      return (
-                        <td key={c} className="p-0.5">
-                          <div className="num flex h-12 items-center justify-center rounded-sm" style={cellStyle(v)}>
-                            {v == null ? "–" : Math.floor(v * 100 + 0.5)}
-                          </div>
-                        </td>
-                      );
-                    })}
+                    {CONFIG_ORDER.map((c) => (
+                      <th
+                        key={c}
+                        scope="col"
+                        className={`px-1 pb-2 text-center align-bottom font-medium ${c === "d" ? "text-accent" : "text-muted"}`}
+                      >
+                        {shortName(names[c] ?? c)}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                </thead>
+                <tbody>
+                  {FAMILIES.map(([fam, label]) => (
+                    <tr key={fam}>
+                      <th scope="row" className="px-2 text-left text-[0.9375rem] font-normal text-ink">
+                        {label}
+                      </th>
+                      {CONFIG_ORDER.map((c) => {
+                        const m = metric(rows.find((r) => r.config === c && r.group === `family=${fam}`), "asr_mean");
+                        const v = m?.value ?? null;
+                        return (
+                          <td key={c} className="p-0">
+                            <div
+                              className="num flex h-14 items-center justify-center rounded-lg text-base font-semibold text-ink transition-shadow hover:ring-2 hover:ring-line-strong"
+                              style={cellStyle(v)}
+                            >
+                              {v == null ? "–" : Math.floor(v * 100 + 0.5)}
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
 
-        <ol className="space-y-6 lg:col-span-4">
-          {FINDINGS.map(([lead, rest], i) => (
-            <li key={lead} className="grid grid-cols-[2rem_1fr] gap-x-2">
-              <span className="num text-step--1 text-muted" aria-hidden="true">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <p className="text-step-0 text-muted">
-                <span className="font-medium text-ink">{lead}</span> {rest}
-              </p>
-            </li>
-          ))}
-        </ol>
+          <Reveal>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {FINDINGS.map(([Icon, title, text]) => (
+                <li key={title} className="card flex h-full gap-4 p-5">
+                  <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-accent" aria-hidden="true">
+                    <Icon className="size-[18px]" />
+                  </span>
+                  <div>
+                    <p className="font-medium text-ink">{title}</p>
+                    <p className="mt-1 text-sm text-muted">{text}</p>
+                  </div>
+                </li>
+            ))}
+          </ul>
+          </Reveal>
+        </div>
       </div>
     </section>
   );

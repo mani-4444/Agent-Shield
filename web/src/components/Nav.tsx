@@ -1,3 +1,4 @@
+import { ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { REPO_URL } from "../data";
 import { GithubIcon } from "./GithubIcon";
@@ -21,12 +22,15 @@ export function Nav() {
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-bg transition-[border-color] duration-200 ${
-        scrolled ? "shadow-header border-b border-line" : "border-b border-transparent"
+      className={`sticky top-0 z-40 border-b backdrop-blur-xl transition-colors duration-200 ${
+        scrolled ? "border-line bg-bg/80" : "border-transparent bg-transparent"
       }`}
     >
       <nav className="wrapper flex h-16 items-center justify-between gap-4" aria-label="Main">
-        <a href="#top" className="font-serif text-step-1 font-semibold tracking-tight text-ink">
+        <a href="#top" className="flex items-center gap-2.5 font-semibold tracking-tight text-ink">
+          <span className="grid size-8 place-items-center rounded-lg bg-accent-solid text-on-accent" aria-hidden="true">
+            <ShieldCheck className="size-[18px]" />
+          </span>
           Agent Shield
         </a>
         <div className="flex items-center gap-1">
@@ -35,7 +39,7 @@ export function Nav() {
               <li key={l.href}>
                 <a
                   href={l.href}
-                  className="rounded-[var(--radius-control)] px-3 py-2 text-step--1 text-muted transition-colors duration-150 hover:text-ink"
+                  className="rounded-lg px-3 py-2 text-sm text-muted transition-colors duration-150 hover:text-ink"
                 >
                   {l.label}
                 </a>
@@ -45,7 +49,7 @@ export function Nav() {
           <ThemeToggle />
           <a
             href={REPO_URL}
-            className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-control)] px-3 text-step--1 text-muted transition-colors duration-150 hover:bg-band hover:text-ink"
+            className="ml-1 inline-flex h-10 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm font-medium text-ink transition-colors duration-150 hover:border-line-strong"
           >
             <GithubIcon className="size-4" />
             <span className="hidden sm:inline">GitHub</span>

@@ -1,38 +1,43 @@
 import { headline, metric, per100, results } from "../data";
+import { Reveal } from "../motion";
 
 export function KeyFigures() {
   const rows = headline(results);
   const none = rows.find((r) => r.config === "a");
   const checker = rows.find((r) => r.config === "d");
   const figures = [
-    { value: results.n_records.toLocaleString("en-IN"), label: "trials, every one scored by fixed rules" },
-    { value: String(results.n_docs), label: "test messages, half carrying a hidden attack" },
     {
-      value: `${per100(metric(none, "asr_mean")?.value)} → ${per100(metric(checker, "asr_mean")?.value)}`,
-      label: "attacks that worked per 100, no protection vs fact-checker",
+      value: (
+        <>
+          <span className="text-muted">{per100(metric(none, "asr_mean")?.value)}</span>
+          <span className="mx-2 text-muted" aria-hidden="true">
+            →
+          </span>
+          <span className="sr-only"> to </span>
+          <span className="text-accent">{per100(metric(checker, "asr_mean")?.value)}</span>
+        </>
+      ),
+      label: "attacks that worked per 100: no protection vs the strict fact-checker",
     },
     {
-      value: `${per100(metric(checker, "benign_accuracy")?.value)}`,
-      label: "normal messages per 100 the fact-checker still handled right",
+      value: <span className="text-accent">{per100(metric(checker, "benign_accuracy")?.value)}</span>,
+      label: "normal messages per 100 the fact-checker still handled correctly",
     },
+    { value: results.n_records.toLocaleString("en-IN"), label: "trials, each scored by fixed rules, no AI judge" },
+    { value: String(results.n_docs), label: "test messages in English, Telugu and a mix of both" },
   ];
   return (
     <section aria-label="Key figures" className="wrapper">
-      <dl className="grid grid-cols-1 border-y border-line sm:grid-cols-2 lg:grid-cols-4">
-        {figures.map((f, i) => (
-          <div
-            key={f.label}
-            className={`py-6 sm:px-6 ${i > 0 ? "border-t border-line sm:border-t-0" : ""} ${
-              i % 2 === 1 ? "sm:border-l sm:border-line" : ""
-            } ${i >= 2 ? "sm:border-t lg:border-t-0" : ""} ${i === 2 ? "lg:border-l lg:border-line" : ""} ${
-              i === 0 ? "sm:pl-0" : ""
-            }`}
-          >
-            <dt className="text-step--1 text-muted">{f.label}</dt>
-            <dd className="num mt-2 text-step-3 text-ink">{f.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <Reveal>
+        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {figures.map((f) => (
+            <div key={f.label} className="card flex flex-col-reverse justify-end gap-3 p-6">
+              <dt className="text-sm text-muted">{f.label}</dt>
+              <dd className="num text-metric font-semibold text-ink">{f.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </Reveal>
     </section>
   );
 }

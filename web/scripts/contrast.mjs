@@ -34,18 +34,19 @@ const ratio = (x, y) => {
 };
 
 const TEXT = [
-  ["text", "bg"], ["text", "surface"], ["text", "bg-band"],
-  ["text-muted", "bg"], ["text-muted", "surface"], ["text-muted", "bg-band"],
+  ["text", "bg"], ["text", "surface"], ["text", "bg-band"], ["text", "surface-2"],
+  ["text-muted", "bg"], ["text-muted", "surface"], ["text-muted", "bg-band"], ["text-muted", "surface-2"],
   ["accent", "bg"], ["accent", "surface"], ["accent", "bg-band"], ["accent", "accent-subtle"],
-  ["on-accent", "accent"], ["text", "accent-subtle"],
-  ["danger", "surface"], ["danger", "danger-subtle"], ["text", "danger-subtle"],
-  ["success", "surface"], ["success", "success-subtle"], ["text", "success-subtle"],
+  ["on-accent", "accent-solid"], ["on-accent", "accent-solid-hover"], ["text", "accent-subtle"],
+  ["danger", "surface"], ["danger", "bg"], ["danger", "danger-subtle"], ["text", "danger-subtle"],
+  ["success", "surface"], ["success", "bg"], ["success", "success-subtle"], ["text", "success-subtle"],
   ["on-strong", "danger"],
 ];
 const UI = [
   ["border-strong", "bg"], ["border-strong", "surface"],
-  ["accent", "bg"], ["accent", "surface"],
-  ["bar", "track"], ["bar", "surface"], ["bar", "bg-band"],
+  ["accent", "bg"], ["accent", "surface"], ["accent", "track"],
+  ["bar", "track"], ["bar", "surface"],
+  ["danger", "surface"], ["success", "surface"],
 ];
 
 let failed = 0;

@@ -22,6 +22,11 @@ export const CONFIG_COLOR: Record<ConfigId, string> = {
 
 export const REPO_URL = "https://github.com/mani-4444/Agent-Shield";
 
+/** Defense name without its parenthetical ("Attack detector (Meta Prompt Guard)" -> "Attack detector"). */
+export function shortName(name: string): string {
+  return name.replace(/\s*\(.*?\)/, "");
+}
+
 export function headline(run: Run): ConfigRow[] {
   return CONFIG_ORDER.flatMap((c) => run.rows.filter((r) => r.group === "all" && r.config === c));
 }

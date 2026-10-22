@@ -1,78 +1,112 @@
-import { useState } from "react";
+import { Gauge } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { headline, metric, per100, results, tau05 } from "../data";
+import { Reveal } from "../motion";
 import { BarTable, type BarRow } from "./BarTable";
+import { ChoiceGroup } from "./ChoiceGroup";
+import { Scatter } from "./Scatter";
+import { SectionHeader } from "./SectionHeader";
 
-const MODES = [
-  { key: "asr_mean", label: "Every attack" },
-  { key: "asr_twin_adjusted", label: "Only attacks that caused the mistake" },
-] as const;
+type Mode = "asr_mean" | "asr_twin_adjusted";
+
+function ChartCard({ title, note, action, children, className = "" }: { title: string; note: string; action?: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <Reveal className={`card flex flex-col p-5 sm:p-7 ${className}`}>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h3 className="text-xl text-ink">{title}</h3>
+          <p className="mt-1 text-sm text-muted">{note}</p>
+        </div>
+        {action}
+      </div>
+      <div className="mt-6 flex-1">{children}</div>
+    </Reveal>
+  );
+}
 
 export function Results() {
-  const [mode, setMode] = useState<(typeof MODES)[number]["key"]>("asr_mean");
+  const [mode, setMode] = useState<Mode>("asr_mean");
   const rows = headline(results);
   const attackRows: BarRow[] = rows.map((r) => ({ config: r.config, name: r.name, m: metric(r, mode) }));
   const normalRows: BarRow[] = rows.map((r) => ({ config: r.config, name: r.name, m: metric(r, "benign_accuracy") }));
   const pgDefault = per100(metric(headline(tau05).find((r) => r.config === "c"), "asr_mean")?.value);
   const pgTuned = per100(metric(rows.find((r) => r.config === "c"), "asr_mean")?.value);
+  const none = per100(metric(rows.find((r) => r.config === "a"), "asr_mean")?.value);
 
   return (
-    <section id="results" aria-labelledby="results-title" className="section bg-band">
+    <section id="results" aria-labelledby="results-title" className="section">
       <div className="wrapper">
-        <div className="grid gap-6 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <p className="eyebrow">Results</p>
-            <h2 id="results-title" className="mt-3 text-step-4 text-ink">
-              Five defenses on the same messages
-            </h2>
-          </div>
-          <p className="prose text-muted lg:col-span-5 lg:self-end">
-            Each message went through every defense three times. The line across each bar is the 95% range; where two
-            ranges overlap a lot, the difference could be chance.
-          </p>
-        </div>
+        <SectionHeader
+          id="results-title"
+          eyebrow="Results"
+          title={`Five defenses, the same ${results.n_docs} messages`}
+          lead="Every message went through every defense three times. Lines across the bars and points are 95% ranges: if two ranges overlap a lot, the gap could be chance."
+        />
 
-        <div className="mt-10 inline-flex rounded-[var(--radius-control)] border border-line-strong p-0.5" role="group" aria-label="Which attacks to count">
-          {MODES.map((m) => (
-            <button
-              key={m.key}
-              type="button"
-              aria-pressed={mode === m.key}
-              onClick={() => setMode(m.key)}
-              className={`min-h-10 rounded-[calc(var(--radius-control)-2px)] px-4 text-step--1 transition-colors duration-150 ${
-                mode === m.key ? "bg-accent-subtle font-medium text-accent" : "text-muted hover:text-ink"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+        <div className="mt-14 grid gap-5 lg:grid-cols-12">
+          <ChartCard
+            className="lg:col-span-7"
+            title="Safe and still useful"
+            note="A good defense sits top-left: few attacks get through, and normal messages are still handled right."
+          >
+            <Scatter rows={rows} highlight={["d", "e"]} />
+          </ChartCard>
 
-        <div className="mt-8 grid gap-12 lg:grid-cols-2 lg:gap-16">
-          <BarTable
-            caption="Attacks that worked, per 100"
+          <ChartCard
+            className="lg:col-span-5"
+            title="Attacks that worked, per 100"
             note={
               mode === "asr_mean"
                 ? "Lower is better."
                 : "Lower is better. Leaves out cases where the assistant made the same mistake without the attack."
             }
-            rows={attackRows}
-            highlight={["d"]}
-          />
-          <BarTable
-            caption="Normal messages handled right, per 100"
-            note="Higher is better. Blocking everything would score low here."
-            rows={normalRows}
-            highlight={["d"]}
-          />
-        </div>
+          >
+            <ChoiceGroup
+              id="mode"
+              label="Which attacks to count"
+              value={mode}
+              onChange={setMode}
+              className="mb-4 w-full [&>button]:flex-1"
+              options={[
+                { value: "asr_mean", label: "Every attack" },
+                { value: "asr_twin_adjusted", label: "Caused by the attack" },
+              ]}
+            />
+            <BarTable caption="Attacks that worked, per 100" rows={attackRows} highlight={["d"]} />
+          </ChartCard>
 
-        {pgDefault != null && pgTuned != null && (
-          <p className="prose mt-10 border-l-2 border-line-strong pl-4 text-step--1 text-muted">
-            Meta's attack detector reached <span className="num text-ink">{pgTuned} in 100</span> only after its
-            sensitivity was tuned on separate practice data. At its default setting it let{" "}
-            <span className="num text-ink">{pgDefault} in 100</span> attacks through, close to no protection at all.
-          </p>
-        )}
+          <ChartCard
+            className="lg:col-span-7"
+            title="Normal messages handled right, per 100"
+            note="Higher is better. A defense that blocked everything would score badly here."
+          >
+            <BarTable caption="Normal messages handled right, per 100" rows={normalRows} highlight={["d"]} />
+          </ChartCard>
+
+          {pgDefault != null && pgTuned != null && (
+            <Reveal className="card flex flex-col p-5 sm:p-7 lg:col-span-5">
+              <span className="grid size-10 place-items-center rounded-xl bg-accent-subtle text-accent" aria-hidden="true">
+                <Gauge className="size-5" />
+              </span>
+              <h3 className="mt-5 text-xl text-ink">An off-the-shelf detector needs tuning</h3>
+              <p className="mt-2 text-muted">
+                Meta’s attack detector reached {pgTuned} in 100 only after its sensitivity was tuned on separate practice
+                messages. At its default setting it let {pgDefault} in 100 through, close to the {none} with no
+                protection at all.
+              </p>
+              <div className="mt-auto grid grid-cols-2 gap-3 pt-6">
+                <div className="rounded-xl bg-surface-2 p-4">
+                  <p className="num text-3xl font-semibold text-ink">{pgDefault}</p>
+                  <p className="mt-1 text-sm text-muted">default setting</p>
+                </div>
+                <div className="rounded-xl bg-accent-subtle p-4">
+                  <p className="num text-3xl font-semibold text-accent">{pgTuned}</p>
+                  <p className="mt-1 text-sm text-muted">after tuning</p>
+                </div>
+              </div>
+            </Reveal>
+          )}
+        </div>
       </div>
     </section>
   );

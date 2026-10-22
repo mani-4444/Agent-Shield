@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from "framer-motion";
 import type { ConfigId, MetricValue } from "../types";
 
 export interface BarRow {
@@ -7,82 +8,70 @@ export interface BarRow {
 }
 
 /**
- * A data table drawn as a bar chart: each row has the defense, a bar with its 95% range, and the
- * value. Screen readers get a normal table; the bars are decoration over the same numbers.
+ * A data table drawn as a bar chart: each row shows the defense and its value, with a full-width
+ * bar and 95% range underneath. Rows are laid out with CSS grid, so table roles are explicit to
+ * keep screen readers reading it as a table; the bars are decoration over the same numbers.
  */
-export function BarTable({
-  caption,
-  note,
-  rows,
-  highlight,
-}: {
-  caption: string;
-  note: string;
-  rows: BarRow[];
-  highlight: ConfigId[];
-}) {
+export function BarTable({ caption, rows, highlight }: { caption: string; rows: BarRow[]; highlight: ConfigId[] }) {
+  const reduce = useReducedMotion();
   return (
-    <figure>
-      <table className="w-full border-collapse text-left">
-        <caption className="mb-1 text-left font-serif text-step-1 text-ink">{caption}</caption>
-        <thead>
-          <tr>
-            <td colSpan={3} className="pb-4 text-step--1 text-muted">
-              {note}
-            </td>
-          </tr>
-          <tr className="sr-only">
-            <th scope="col">Defense</th>
-            <th scope="col">Out of 100</th>
-            <th scope="col">95% range</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(({ config, name, m }) => {
-            const v = m?.value ?? null;
-            const lo = m?.lo ?? v;
-            const hi = m?.hi ?? v;
-            const on = highlight.includes(config);
-            return (
-              <tr key={config} className="border-t border-line">
-                <th scope="row" className={`w-[38%] py-3 pr-4 align-middle text-step--1 font-normal ${on ? "text-ink font-medium" : "text-muted"}`}>
-                  {name}
-                </th>
-                <td className="py-3 align-middle" aria-hidden="true">
-                  <div className="relative h-6 rounded-sm bg-track">
-                    {v != null && (
-                      <div
-                        className={`absolute inset-y-0 left-0 rounded-sm ${on ? "bg-accent" : "bg-bar"}`}
-                        style={{ width: `${Math.max(0.6, v * 100)}%` }}
-                      />
-                    )}
-                    {lo != null && hi != null && (
-                      <div
-                        className="absolute top-1/2 h-px -translate-y-1/2 bg-ink"
-                        style={{ left: `${lo * 100}%`, width: `${Math.max(0, (hi - lo) * 100)}%` }}
-                      >
-                        <span className="absolute -top-1.5 left-0 h-3 w-px bg-ink" />
-                        <span className="absolute -top-1.5 right-0 h-3 w-px bg-ink" />
-                      </div>
-                    )}
-                  </div>
-                </td>
-                <td className="w-24 py-3 pl-4 text-right align-middle">
-                  <span className={`num text-step-0 ${on ? "text-ink font-medium" : "text-ink"}`}>
-                    {v == null ? "–" : Math.floor(v * 100 + 0.5)}
+    <table role="table" className="block w-full">
+      <caption className="sr-only">{caption}</caption>
+      <thead role="rowgroup" className="sr-only">
+        <tr role="row">
+          <th role="columnheader" scope="col">Defense</th>
+          <th role="columnheader" scope="col">Out of 100</th>
+        </tr>
+      </thead>
+      <tbody role="rowgroup" className="block space-y-5">
+        {rows.map(({ config, name, m }, i) => {
+          const v = m?.value ?? null;
+          const lo = m?.lo ?? v;
+          const hi = m?.hi ?? v;
+          const on = highlight.includes(config);
+          return (
+            <tr key={config} role="row" className="grid grid-cols-[1fr_auto] items-baseline gap-x-4 gap-y-2">
+              <th role="rowheader" scope="row" className={`text-left text-[0.9375rem] ${on ? "font-semibold text-ink" : "font-normal text-muted"}`}>
+                {name}
+              </th>
+              <td role="cell" className="text-right">
+                <span className={`num text-xl font-semibold ${on ? "text-accent" : "text-ink"}`}>
+                  {v == null ? "–" : Math.floor(v * 100 + 0.5)}
+                </span>
+                {lo != null && hi != null && (
+                  <span className="sr-only">
+                    {" "}
+                    (95% range {(lo * 100).toFixed(1)} to {(hi * 100).toFixed(1)})
                   </span>
-                  {lo != null && hi != null && (
-                    <span className="sr-only">
-                      {" "}
-                      (95% range {(lo * 100).toFixed(1)} to {(hi * 100).toFixed(1)})
-                    </span>
+                )}
+              </td>
+              <td className="col-span-2" aria-hidden="true">
+                <div className="relative h-3 rounded-full bg-track">
+                  {v != null && (
+                    <motion.div
+                      className={`absolute inset-y-0 left-0 origin-left rounded-full ${on ? "bg-accent" : "bg-bar"}`}
+                      style={{ width: `${Math.max(1, v * 100)}%` }}
+                      initial={reduce ? false : { scaleX: 0 }}
+                      whileInView={{ scaleX: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: reduce ? 0 : i * 0.06 }}
+                    />
                   )}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </figure>
+                  {lo != null && hi != null && (
+                    <div
+                      className="absolute top-1/2 h-0.5 -translate-y-1/2 bg-ink/80"
+                      style={{ left: `${lo * 100}%`, width: `${Math.max(0, (hi - lo) * 100)}%` }}
+                    >
+                      <span className="absolute -top-[7px] left-0 h-4 w-0.5 rounded-full bg-ink/80" />
+                      <span className="absolute -top-[7px] right-0 h-4 w-0.5 rounded-full bg-ink/80" />
+                    </div>
+                  )}
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 }
