@@ -37,7 +37,7 @@ const TEXT = [
   ["text", "bg"], ["text", "surface"], ["text", "bg-band"], ["text", "surface-2"],
   ["text-muted", "bg"], ["text-muted", "surface"], ["text-muted", "bg-band"], ["text-muted", "surface-2"],
   ["accent", "bg"], ["accent", "surface"], ["accent", "bg-band"], ["accent", "accent-subtle"],
-  ["on-accent", "accent-solid"], ["on-accent", "accent-solid-hover"], ["text", "accent-subtle"],
+  ["on-accent", "accent-solid"], ["on-accent", "accent-solid-hover"], ["text", "accent-subtle"], ["text-muted", "accent-subtle"],
   ["danger", "surface"], ["danger", "bg"], ["danger", "danger-subtle"], ["text", "danger-subtle"],
   ["success", "surface"], ["success", "bg"], ["success", "success-subtle"], ["text", "success-subtle"],
   ["on-strong", "danger"],

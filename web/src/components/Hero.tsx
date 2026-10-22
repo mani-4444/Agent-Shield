@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Database } from "lucide-react";
 import { REPO_URL, headline, metric, per100, results } from "../data";
 import { Enter } from "../motion";
 import { Simulator } from "./Simulator";
@@ -33,14 +33,21 @@ export function Hero() {
         </p>
 
         </Enter>
-        <Enter delay={0.28} className="mt-9 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+        <Enter delay={0.28} className="mt-9 flex flex-wrap items-center justify-center gap-x-4 gap-y-4">
           <a
             href="#results"
             className="press inline-flex h-12 items-center rounded-full bg-accent-solid px-7 text-lg font-medium text-on-accent hover:bg-accent-solid-hover"
           >
             See the results
           </a>
-          <a href={REPO_URL} className="group inline-flex min-h-12 items-center gap-0.5 text-lg text-accent">
+          <a
+            href="#/trials"
+            className="press inline-flex h-12 items-center gap-2 rounded-full border border-accent/60 bg-accent-subtle px-6 text-lg font-medium text-accent hover:border-accent"
+          >
+            <Database className="size-5" aria-hidden="true" />
+            Browse all {results.n_records.toLocaleString("en-IN")} trials
+          </a>
+          <a href={REPO_URL} className="group inline-flex min-h-12 items-center gap-0.5 px-2 text-lg text-accent">
             <span className="group-hover:underline">View the code</span>
             <ChevronRight className="size-5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
           </a>

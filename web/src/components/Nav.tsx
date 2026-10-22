@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookOpen, ChartColumn, ListChecks, ShieldAlert, Workflow, type LucideIcon } from "lucide-react";
+import { BookOpen, ChartColumn, Database, ShieldAlert, Workflow, type LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { REPO_URL } from "../data";
 import { GithubIcon } from "./GithubIcon";
@@ -10,7 +10,7 @@ export type View = "home" | "trials";
 const LINKS: { id: string; href: string; label: string; short: string; Icon: LucideIcon }[] = [
   { id: "results", href: "#results", label: "Results", short: "Results", Icon: ChartColumn },
   { id: "attacks", href: "#attacks", label: "Real attacks", short: "Attacks", Icon: ShieldAlert },
-  { id: "trials", href: "#/trials", label: "All trials", short: "Trials", Icon: ListChecks },
+  { id: "trials", href: "#/trials", label: "All trials", short: "Trials", Icon: Database },
   { id: "how", href: "#how", label: "How it works", short: "How", Icon: Workflow },
   { id: "method", href: "#method", label: "Method", short: "Method", Icon: BookOpen },
 ];
@@ -60,7 +60,21 @@ export function Nav({ view }: { view: View }) {
             Agent Shield
           </a>
           <ul className="hidden items-center md:flex">
-            {LINKS.map((l) => (
+            {LINKS.map((l) =>
+              l.id === "trials" ? (
+                <li key={l.id} className="mx-1.5">
+                  <a
+                    href={l.href}
+                    aria-current={current === "trials" ? "page" : undefined}
+                    className={`press inline-flex h-9 items-center gap-1.5 rounded-full bg-accent-solid px-4 text-sm font-medium text-on-accent hover:bg-accent-solid-hover ${
+                      current === "trials" ? "ring-2 ring-accent/50 ring-offset-2 ring-offset-transparent" : ""
+                    }`}
+                  >
+                    <Database className="size-4" aria-hidden="true" />
+                    {l.label}
+                  </a>
+                </li>
+              ) : (
               <li key={l.id}>
                 <a
                   href={l.href}
@@ -79,7 +93,8 @@ export function Nav({ view }: { view: View }) {
                   {l.label}
                 </a>
               </li>
-            ))}
+              ),
+            )}
           </ul>
           <div className="flex items-center">
             <ThemeToggle />
@@ -117,7 +132,13 @@ export function Nav({ view }: { view: View }) {
                   transition={{ type: "spring", stiffness: 420, damping: 36 }}
                 />
               )}
-              <l.Icon className="size-5" aria-hidden="true" />
+              {l.id === "trials" ? (
+                <span className="grid size-7 place-items-center rounded-full bg-accent-solid text-on-accent" aria-hidden="true">
+                  <l.Icon className="size-4" />
+                </span>
+              ) : (
+                <l.Icon className="size-5" aria-hidden="true" />
+              )}
               {l.short}
             </a>
           );

@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { DataBanner } from "./components/DataBanner";
 import { Examples } from "./components/Examples";
 import { Footer } from "./components/Footer";
 import { Heatmap } from "./components/Heatmap";
@@ -61,6 +62,7 @@ export default function App() {
           <>
             <Hero />
             <KeyFigures />
+            <DataBanner />
             <Results />
             <Heatmap />
             <Examples />
