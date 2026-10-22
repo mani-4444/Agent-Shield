@@ -1,5 +1,5 @@
 [project]
-name = "injectionbench"
+name = "agent-shield"
 version = "0.1.0"
 description = "Indirect prompt-injection benchmark for document-reading finance agents."
 readme = "README.md"

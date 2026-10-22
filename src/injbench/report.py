@@ -41,6 +41,7 @@ FAMILIES = ["F1_override", "F2_roleplay", "F3_hidden", "F4_multilingual", "F5_to
 TABLE_METRICS = [
     ("asr_mean", "ASR mean", True),
     ("asr_worst", "ASR worst-of-3", True),
+    ("asr_twin_adjusted", "ASR twin-adj.*", True),
     ("benign_accuracy", "Benign acc.", True),
     ("utility_strict", "Strict utility", True),
     ("utility_safe", "Safe utility", True),
@@ -101,14 +102,21 @@ def summary_csv(rows: Sequence[SummaryRow]) -> str:
     return buf.getvalue()
 
 
+def _int(x: float) -> str:
+    """Rounded integer text without a "-0"."""
+    return str(round(x))
+
+
 def _cell(m: MetricValue | None, pct: bool) -> str:
     if m is None or m.value is None:
         return "–"
     scale, unit = (100, "%") if pct else (1, "")
-    text = f"{m.value * scale:.1f}{unit}" if pct else f"{m.value:.0f}"
+    text = f"{m.value * scale:.1f}{unit}" if pct else _int(m.value)
     if m.lo is not None and m.hi is not None:
         text += (
-            f" [{m.lo * scale:.1f}, {m.hi * scale:.1f}]" if pct else f" [{m.lo:.0f}, {m.hi:.0f}]"
+            f" [{m.lo * scale:.1f}, {m.hi * scale:.1f}]"
+            if pct
+            else f" [{_int(m.lo)}, {_int(m.hi)}]"
         )
     if m.n_docs < LOW_N:
         text += " (low n)"
@@ -119,21 +127,29 @@ def summary_md(rows: Sequence[SummaryRow], records: Sequence[RunRecord], run_dir
     headline = [r for r in rows if r.group == "all"]
     trials = len({r.trial for r in records})
     lines = [
-        f"# InjectionBench results: {run_dir.name}",
+        f"# Agent Shield results: {run_dir.name}",
         "",
         f"{len(records)} records · {len({r.doc_id for r in records})} documents · "
         f"{trials} trial(s) per "
         f"(config, document) · models: {', '.join(sorted({r.model_id for r in records}))}.",
         "Values are point estimates with 95% cluster-bootstrap CIs over documents. "
         f"Cells built on fewer than {LOW_N} documents are marked (low n).",
+        "*Twin-adjusted ASR (secondary, added after the dev pilot and before any test run): a "
+        "success counts only if the benign twin (same config, same trial) did not already meet it.",
         "",
         "## Headline",
         "",
         "| Config | " + " | ".join(label for _, label, _ in TABLE_METRICS) + " |",
         "|---|" + "---|" * len(TABLE_METRICS),
     ]
+    has_classifier = {r.config for r in records if r.classifier_score is not None}
     for r in headline:
-        cells = [_cell(r.metrics.get(key), pct) for key, _, pct in TABLE_METRICS]
+        cells = [
+            "n/a"
+            if key == "classifier_fpr" and r.config not in has_classifier
+            else _cell(r.metrics.get(key), pct)
+            for key, _, pct in TABLE_METRICS
+        ]
         lines.append(f"| {CONFIG_LABELS.get(r.config, r.config)} | " + " | ".join(cells) + " |")
     for dimension, title in (
         ("family", "Attack success by family"),

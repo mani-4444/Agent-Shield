@@ -1,1 +1,1 @@
-"""InjectionBench: indirect prompt-injection benchmark for document-reading finance agents."""
+"""Agent Shield: indirect prompt-injection benchmark for document-reading finance agents."""

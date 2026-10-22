@@ -6,4 +6,4 @@ from injbench.cli import app
 def test_help_runs() -> None:
     result = CliRunner().invoke(app, ["--help"])
     assert result.exit_code == 0
-    assert "InjectionBench" in result.output
+    assert "Agent Shield" in result.output

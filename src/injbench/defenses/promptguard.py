@@ -56,8 +56,10 @@ class PromptGuard:
         self._malicious = 1
 
     def _load(self) -> None:
+        from dotenv import load_dotenv
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
+        load_dotenv()  # HF_TOKEN for the gated repo; HF_HOME decides the cache location
         self._tok = AutoTokenizer.from_pretrained(self.model_id)
         self._model = AutoModelForSequenceClassification.from_pretrained(self.model_id).eval()
         labels = {int(k): str(v).upper() for k, v in self._model.config.id2label.items()}
@@ -70,7 +72,10 @@ class PromptGuard:
         if self._model is None:
             self._load()
         ids = self._tok(text, add_special_tokens=False)["input_ids"]
-        batch = [self._tok.build_inputs_with_special_tokens(w) for w in windows(ids)]
+        # [CLS] window [SEP]: built by hand, since transformers 5 tokenizers dropped
+        # build_inputs_with_special_tokens.
+        cls, sep = self._tok.cls_token_id, self._tok.sep_token_id
+        batch = [[cls, *w, sep] for w in windows(ids)]
         width = max(len(b) for b in batch)
         pad = self._tok.pad_token_id or 0
         input_ids = torch.tensor([b + [pad] * (width - len(b)) for b in batch])

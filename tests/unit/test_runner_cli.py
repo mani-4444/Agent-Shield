@@ -151,6 +151,13 @@ def test_eval_writes_records_and_run_config(workspace: Path) -> None:
     assert "models:" in cfg["models_yaml"]
 
 
+def test_eval_records_threshold_override(workspace: Path) -> None:
+    args = ("eval", "--config", "a", "--split", "dev", "--trials", "1", "--limit", "1")
+    assert invoke(*args, "--run-id", "t5", "--threshold", "0.5").exit_code == 0
+    cfg = json.loads((workspace / "results" / "t5" / "run_config.json").read_text(encoding="utf-8"))
+    assert cfg["threshold_override"] == 0.5
+
+
 def test_eval_resume_makes_no_new_calls(workspace: Path) -> None:
     args = (
         "eval",
@@ -199,3 +206,35 @@ def test_full_test_run_needs_confirmation(workspace: Path) -> None:
         "eval", "--config", "a", "--split", "test", "--trials", "1", "--run-id", "u5", input="n\n"
     )
     assert r.exit_code != 0 and not (workspace / "results" / "u5").exists()
+
+
+class Flaky(Echo):
+    def __init__(self, error: str | None) -> None:
+        super().__init__()
+        self.error = error
+
+    def run(self, d: Document, p: Profile, trial: int) -> RunRecord:
+        return super().run(d, p, trial).model_copy(update={"error": self.error})
+
+
+def test_retry_errors_reruns_provider_failures_only(tmp_path: Path) -> None:
+    run_trials(tmp_path, {"a": Flaky("RateLimitError: 429")}, [doc(1)], {"p": PROFILE}, 1)
+    run_trials(tmp_path, {"a": Flaky("no_decision")}, [doc(2)], {"p": PROFILE}, 1)
+    again = Echo()
+    records = run_trials(
+        tmp_path, {"a": again}, [doc(1), doc(2)], {"p": PROFILE}, 1, retry_errors=True
+    )
+    assert again.calls == 1  # only the provider error is re-run; no_decision is model behaviour
+    assert {r.doc_id: r.error for r in records} == {"x-1": None, "x-2": "no_decision"}
+
+
+def test_eval_secondary_model_role(workspace: Path) -> None:
+    args = ("eval", "--config", "d", "--split", "dev", "--trials", "1", "--limit", "1")
+    assert invoke(*args, "--run-id", "sec", "--model", "secondary").exit_code == 0
+    rec = load_records(workspace / "results" / "sec" / RECORDS)[0]
+    assert rec.model_id == "qwen/qwen3.8-27b"
+    cfg = json.loads(
+        (workspace / "results" / "sec" / "run_config.json").read_text(encoding="utf-8")
+    )
+    assert cfg["model_role"] == "secondary"
+    assert invoke(*args, "--run-id", "bad", "--model", "tertiary").exit_code != 0

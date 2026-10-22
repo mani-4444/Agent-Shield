@@ -1,4 +1,4 @@
-# InjectionBench — Design and Key Decisions
+# Agent Shield — Design and Key Decisions
 
 The *how*. What and why: SPEC.md (incl. threat model) · Tasks: PLAN.md · Agent rules: AGENTS.md
 Sections: 1 Architecture · 2 Layout · 3 Data model · 4 Decision policy · 5 Attacks · 6 Configs · 7 LLM adapter · 8 Runner · 9 Metrics · 10 Report · 11 Key decisions (ADRs) · 12 Interfaces fixed by the acceptance suite · Appendix A policy prompt
@@ -32,7 +32,7 @@ Trusted: profile, policy, code, tools. Untrusted: everything inside a document's
 ## 2. Repository layout
 
 ```
-injectionbench/
+agent-shield/
   AGENTS.md SPEC.md DESIGN.md PLAN.md PROGRESS.md   (the only planning docs)
   CLAUDE.md -> AGENTS.md (symlink)   README.md (written at T20)
   pyproject.toml  uv.lock  .env.example  .gitignore
@@ -218,6 +218,7 @@ Each decision is accepted unless marked otherwise. Don't re-litigate an accepted
 - **Options:** (1) provider SDKs per config; (2) a routing library such as LiteLLM; (3) a thin in-repo adapter over OpenAI-compatible endpoints (Groq, Gemini's compatibility endpoint, Ollama) with a content-hash cache and `--replay`.
 - **Decision:** Option 3, if T08 confirms tool calling and JSON/structured output on the chosen endpoints; otherwise use the provider SDK *inside* `llm.py` only. `config/models.yaml` pins `primary` (all configs), `secondary` (configs a and d, subset if quota is short) and `payload_drafter` (different family from `primary`). Temperature 0, 3 trials, `trial` in the cache key; report mean and worst-of-3 ASR; cluster-bootstrap CIs. Prompt Guard 2 86M runs locally on CPU via transformers; Groq's hosted copy is the fallback.
 - **Consequences:** free, exact replay; model swaps are a config change; results are tied to dated model IDs. Publish the cache as a release asset and state model IDs and run dates in the README.
+- **Note 2026-10-20 (T08 live check, approved by the human):** Groq no longer serves Llama chat models to this key, and its free tier for the remaining candidates is 1K requests / 200K tokens per day (a full run needs ~10K calls / ~8M tokens). Primary is therefore **Qwen3 8B on local Ollama** (RTX 3050 6 GB, 30/70 CPU/GPU split, `reasoning_effort: none` to disable thinking); secondary Groq `qwen/qwen3.8-27b` on configs a/d. Gemini Flash models returned 503 or were retired during the check. Prompt Guard runs locally (licence approved). Calibrated tau = 0.001122 on dev (approved); tau = 0.5 reported as a secondary run.
 
 ## 12. Interfaces fixed by the acceptance suite (T02, 2026-10-20)
 

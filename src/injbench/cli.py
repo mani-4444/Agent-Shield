@@ -15,7 +15,7 @@ app = typer.Typer(name="injbench", no_args_is_help=True)
 
 @app.callback()
 def main() -> None:
-    """InjectionBench: indirect prompt-injection benchmark for finance agents."""
+    """Agent Shield: indirect prompt-injection benchmark for finance agents."""
 
 
 @app.command()
@@ -90,6 +90,15 @@ def eval_(
     replay: Annotated[bool, typer.Option(help="Cache only: zero network calls.")] = False,
     data_dir: Annotated[Path, typer.Option(help="Dataset directory.")] = Path("data/v1"),
     results_dir: Annotated[Path, typer.Option(help="Results root.")] = Path("results"),
+    threshold: Annotated[
+        float | None, typer.Option(help="Override the classifier threshold for (c)/(e).")
+    ] = None,
+    model: Annotated[
+        str, typer.Option(help="Model role from models.yaml: primary or secondary.")
+    ] = "primary",
+    retry_errors: Annotated[
+        bool, typer.Option(help="Re-run trials that failed with a provider error.")
+    ] = False,
 ) -> None:
     """Run configs x docs x trials (resumable): the same --run-id skips finished trials."""
     import json
@@ -127,14 +136,15 @@ def eval_(
             "run_id": run_id, "configs": configs, "split": split, "trials": trials, "limit": limit,
             "data_dir": str(data_dir), "dataset_sha256": manifest["dataset_sha256"],
             "git_sha": _git_sha(), "models_yaml": DEFAULT_PATH.read_text(encoding="utf-8"),
+            "threshold_override": threshold, "model_role": model,
         }  # fmt: skip
         run_config_path.write_text(json.dumps(run_config, indent=2) + "\n", encoding="utf-8")
 
     llm.configure(cache_dir=Path(".cache/llm"), replay=replay)
-    settings = default_settings(git_sha=_git_sha())
-    defenses = {c: build_defense(c, settings=settings) for c in configs}
+    settings = default_settings(git_sha=_git_sha(), role=model)
+    defenses = {c: build_defense(c, settings=settings, threshold=threshold) for c in configs}
     try:
-        records = run_trials(run_dir, defenses, docs, profiles, trials)
+        records = run_trials(run_dir, defenses, docs, profiles, trials, retry_errors=retry_errors)
     except llm.ReplayMiss as exc:
         typer.echo(f"replay cache miss: {exc}", err=True)
         raise typer.Exit(code=2) from exc

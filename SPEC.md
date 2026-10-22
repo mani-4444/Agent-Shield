@@ -1,4 +1,4 @@
-# InjectionBench — Problem, Spec and Threat Model
+# Agent Shield — Problem, Spec and Threat Model
 
 The *what* and *why*. How it's built: DESIGN.md · Tasks: PLAN.md · Status: PROGRESS.md · Agent rules: AGENTS.md
 Project size: **Large** (greenfield, multi-session), trimmed to a solo 3-day budget.
@@ -7,7 +7,7 @@ Project size: **Large** (greenfield, multi-session), trimmed to a solo 3-day bud
 
 ## Part 1 — Problem (run sheet stage 1; sign off before Part 2)
 
-# Problem: Prompt-injection defenses for document-reading finance agents are unmeasured (InjectionBench)
+# Problem: Prompt-injection defenses for document-reading finance agents are unmeasured (Agent Shield)
 
 **Who is affected:**
 - People using LLM agents that read untrusted documents and then act on them. Here that means a "Buy or Wait?"-style personal-finance agent that reads bank SMS, receipt text (after OCR) and chat messages, then approves, delays or flags payments.
@@ -62,7 +62,7 @@ Answers go in PROGRESS.md ("Decisions made").
 > **Pre-registration rule.** Metric definitions, detectors and the test split are frozen when this spec is approved. Any later change is logged in PROGRESS.md with a reason and applied to *all* configs, and the README says so.
 
 ### Goal
-A finance-style extraction agent reads one untrusted document plus a trusted user profile and decides `APPROVE`, `WAIT`, `FLAG` or `NO_ACTION`, optionally calling mock tools. InjectionBench measures how five defense configurations hold up against indirect prompt injections hidden in those documents, and what each costs in accuracy and latency.
+A finance-style extraction agent reads one untrusted document plus a trusted user profile and decides `APPROVE`, `WAIT`, `FLAG` or `NO_ACTION`, optionally calling mock tools. Agent Shield measures how five defense configurations hold up against indirect prompt injections hidden in those documents, and what each costs in accuracy and latency.
 
 ### Users
 - **U1 Builder (me):** runs eval and report, reads which defense fails on which attack family.

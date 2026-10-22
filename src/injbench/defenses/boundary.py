@@ -53,6 +53,7 @@ def extract(
             response_schema=ExtractedFacts.model_json_schema(),
             temperature=settings.temperature,
             max_tokens=settings.max_tokens,
+            reasoning_effort=settings.model.reasoning_effort,
             trial=trial,
         )
         response = trace.call(llm, request)

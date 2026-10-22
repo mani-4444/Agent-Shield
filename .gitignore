@@ -4,3 +4,9 @@ results/*/records.jsonl
 results/*/progress.log
 __pycache__/
 .venv/
+results/*.console.log
+# superseded local runs, kept on disk (deleting results/ needs the human's OK)
+results/smoke/
+results/pilot-dev-abd/
+results/pilot-dev/
+results/pilot-dev-t05/

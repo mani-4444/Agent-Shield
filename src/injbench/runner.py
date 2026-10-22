@@ -38,9 +38,17 @@ def load_records(path: Path) -> list[RunRecord]:
     return records
 
 
-def repair(path: Path) -> list[RunRecord]:
-    """Rewrite records.jsonl with only valid, unique lines if anything else is in it."""
+def is_provider_error(record: RunRecord) -> bool:
+    """A failed call (after retries), as opposed to model behaviour such as no_decision."""
+    return record.error is not None and record.error != "no_decision"
+
+
+def repair(path: Path, drop_errors: bool = False) -> list[RunRecord]:
+    """Rewrite records.jsonl with only valid, unique lines (and, if asked, without provider
+    errors so they are re-run)."""
     records = load_records(path)
+    if drop_errors:
+        records = [r for r in records if not is_provider_error(r)]
     if path.is_file():
         clean = "".join(r.model_dump_json() + "\n" for r in records)
         if path.read_text(encoding="utf-8") != clean:
@@ -55,11 +63,12 @@ def run_trials(
     profiles: Mapping[str, Profile],
     trials: int,
     on_progress: Callable[[int, int, RunRecord], None] | None = None,
+    retry_errors: bool = False,
 ) -> list[RunRecord]:
     """Run every missing (config, doc, trial) and return all records of the run."""
     run_dir.mkdir(parents=True, exist_ok=True)
     path = run_dir / RECORDS
-    done = {r.key for r in repair(path)}
+    done = {r.key for r in repair(path, drop_errors=retry_errors)}
     total = len(defenses) * len(docs) * trials
     hits = 0
     with (

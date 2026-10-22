@@ -14,10 +14,14 @@ class NotCalibrated(RuntimeError):
     """Config (c)/(e) needs a classifier threshold and model ID in config/models.yaml (T10)."""
 
 
-def default_settings(path: Path = DEFAULT_PATH, git_sha: str = "unknown") -> Settings:
+def default_settings(
+    path: Path = DEFAULT_PATH, git_sha: str = "unknown", role: str = "primary"
+) -> Settings:
     cfg = load_models_config(path)
+    if role not in ("primary", "secondary"):
+        raise ValueError(f"model role must be primary or secondary, not {role!r}")
     return Settings(
-        model=cfg.primary,
+        model=cfg.primary if role == "primary" else cfg.secondary,
         temperature=cfg.temperature,
         max_tokens=cfg.max_tokens,
         seed=cfg.data_seed,

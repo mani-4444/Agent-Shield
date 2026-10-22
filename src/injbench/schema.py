@@ -188,6 +188,7 @@ class LLMRequest(Model):
     response_schema: dict[str, Any] | None = None  # JSON schema for structured output (config d)
     temperature: float
     max_tokens: int | None
+    reasoning_effort: str | None = None  # e.g. "none" turns off qwen3 thinking on Ollama
     trial: int  # part of the cache key so the 3 trials are distinct, replayable calls
 
 
@@ -225,6 +226,7 @@ class LabelCheck(Model):
 class ModelSpec(Model):
     provider: str
     model_id: str
+    reasoning_effort: str | None = None
 
 
 class ClassifierSpec(Model):
