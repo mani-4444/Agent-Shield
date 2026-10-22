@@ -22,15 +22,13 @@ export function Nav() {
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b backdrop-blur-xl transition-colors duration-200 ${
-        scrolled ? "border-line bg-bg/80" : "border-transparent bg-transparent"
+      className={`sticky top-0 z-40 border-b bg-bg/75 backdrop-blur-xl backdrop-saturate-150 transition-colors duration-200 ${
+        scrolled ? "border-line" : "border-transparent"
       }`}
     >
-      <nav className="wrapper flex h-16 items-center justify-between gap-4" aria-label="Main">
+      <nav className="wrapper flex h-14 items-center justify-between gap-4" aria-label="Main">
         <a href="#top" className="flex items-center gap-2.5 font-semibold tracking-tight text-ink">
-          <span className="grid size-8 place-items-center rounded-lg bg-accent-solid text-on-accent" aria-hidden="true">
-            <ShieldCheck className="size-[18px]" />
-          </span>
+          <ShieldCheck className="size-5" aria-hidden="true" />
           Agent Shield
         </a>
         <div className="flex items-center gap-1">
@@ -49,7 +47,7 @@ export function Nav() {
           <ThemeToggle />
           <a
             href={REPO_URL}
-            className="ml-1 inline-flex h-10 items-center gap-2 rounded-lg border border-line bg-surface px-3 text-sm font-medium text-ink transition-colors duration-150 hover:border-line-strong"
+            className="inline-flex h-10 items-center gap-2 rounded-full px-3 text-sm text-muted transition-colors duration-150 hover:text-ink"
           >
             <GithubIcon className="size-4" />
             <span className="hidden sm:inline">GitHub</span>

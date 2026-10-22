@@ -67,7 +67,7 @@ export function Scatter({ rows, highlight }: { rows: ConfigRow[]; highlight: str
       {width > 0 && (
         <svg width={w} height={h} role="img" aria-label="Scatter chart of safety against usefulness for the five defenses" className="block overflow-visible">
           {/* better corner: few attacks, most normal messages right */}
-          <rect x={x(0)} y={y(1)} width={x(0.1) - x(0)} height={y(0.9) - y(1)} rx={8} fill="var(--accent-subtle)" />
+          <rect x={x(0)} y={y(1)} width={x(0.1) - x(0)} height={y(0.9) - y(1)} rx={8} fill="var(--accent)" fillOpacity={0.12} />
           {x(0.1) - x(0) >= 130 && (
             <text x={x(0.1) - 10} y={y(0.9) - 10} textAnchor="end" fill="var(--accent)" fontSize={14} fontWeight={500}>
               Best corner

@@ -53,14 +53,14 @@ export function ChoiceGroup<T extends string>({
   }
 
   const group = {
-    segmented: "inline-flex rounded-xl border border-line bg-surface-2 p-1",
+    segmented: "inline-flex rounded-full bg-surface-2 p-1",
     chips: "flex flex-wrap gap-2",
     list: "flex flex-col gap-1",
   }[variant];
   const item = {
-    segmented: "min-h-10 rounded-lg px-4 text-sm font-medium",
+    segmented: "min-h-10 rounded-full px-4 text-sm font-medium",
     chips: "min-h-10 rounded-full border px-4 text-sm font-medium",
-    list: "min-h-11 w-full rounded-lg px-3 text-left text-sm font-medium",
+    list: "min-h-11 w-full rounded-xl px-3 text-left text-sm font-medium",
   }[variant];
 
   return (
@@ -88,10 +88,10 @@ export function ChoiceGroup<T extends string>({
                 layoutId={`${id}-selected`}
                 className={`absolute inset-0 -z-10 ${
                   variant === "segmented"
-                    ? "rounded-lg border border-line bg-surface shadow-sm"
+                    ? "rounded-full bg-surface shadow-sm ring-1 ring-line"
                     : variant === "chips"
                       ? "rounded-full bg-accent-subtle"
-                      : "rounded-lg bg-accent-subtle"
+                      : "rounded-xl bg-accent-subtle"
                 }`}
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />

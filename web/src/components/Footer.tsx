@@ -8,9 +8,7 @@ export function Footer() {
       <div className="wrapper grid gap-8 py-12 text-sm text-muted md:grid-cols-[1fr_auto]">
         <div className="max-w-[44rem] space-y-3">
           <p className="flex items-center gap-2.5 text-base font-semibold text-ink">
-            <span className="grid size-7 place-items-center rounded-lg bg-accent-solid text-on-accent" aria-hidden="true">
-              <ShieldCheck className="size-4" />
-            </span>
+            <ShieldCheck className="size-5" aria-hidden="true" />
             Agent Shield
           </p>
           <p>
@@ -27,7 +25,7 @@ export function Footer() {
         <div>
           <a
             href={REPO_URL}
-            className="inline-flex h-11 items-center gap-2 rounded-xl border border-line bg-surface px-4 font-medium text-ink transition-colors hover:border-line-strong"
+            className="inline-flex h-11 items-center gap-2 rounded-full border border-line px-5 font-medium text-ink transition-colors hover:border-line-strong"
           >
             <GithubIcon className="size-4" />
             Code, data and full report
