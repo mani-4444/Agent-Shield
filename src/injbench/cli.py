@@ -133,11 +133,18 @@ def eval_(
     else:
         run_dir.mkdir(parents=True, exist_ok=True)
         run_config = {
-            "run_id": run_id, "configs": configs, "split": split, "trials": trials, "limit": limit,
-            "data_dir": str(data_dir), "dataset_sha256": manifest["dataset_sha256"],
-            "git_sha": _git_sha(), "models_yaml": DEFAULT_PATH.read_text(encoding="utf-8"),
-            "threshold_override": threshold, "model_role": model,
-        }  # fmt: skip
+            "run_id": run_id,
+            "configs": configs,
+            "split": split,
+            "trials": trials,
+            "limit": limit,
+            "data_dir": str(data_dir),
+            "dataset_sha256": manifest["dataset_sha256"],
+            "git_sha": _git_sha(),
+            "models_yaml": DEFAULT_PATH.read_text(encoding="utf-8"),
+            "threshold_override": threshold,
+            "model_role": model,
+        }
         run_config_path.write_text(json.dumps(run_config, indent=2) + "\n", encoding="utf-8")
 
     llm.configure(cache_dir=Path(".cache/llm"), replay=replay)
@@ -201,3 +208,27 @@ def label_score(
     typer.echo(
         f"agreement {result.agreement * 100:.1f}% on {result.n} trials -> {run / 'label_check.md'}"
     )
+
+
+@app.command("export-web")
+def export_web_cmd(
+    run: Annotated[Path, typer.Option(help="Main run directory.")] = Path("results/v1-main"),
+    out: Annotated[Path, typer.Option(help="Output directory.")] = Path("web/src/data"),
+    secondary: Annotated[Path | None, typer.Option(help="Secondary-model run.")] = Path(
+        "results/v1-secondary"
+    ),
+    tau05: Annotated[Path | None, typer.Option(help="Threshold-0.5 run.")] = Path(
+        "results/v1-main-t05"
+    ),
+    run_date: Annotated[str | None, typer.Option(help="Run date shown on the site.")] = None,
+) -> None:
+    """Export a finished run as JSON for the showcase site (numbers copied from summary.csv)."""
+    from injbench.webexport import export_web
+
+    def present(p: Path | None) -> Path | None:
+        return p if p is not None and (p / "summary.csv").is_file() else None
+
+    for path in export_web(
+        run, out, secondary_dir=present(secondary), tau05_dir=present(tau05), run_date=run_date
+    ):
+        typer.echo(f"wrote {path}")

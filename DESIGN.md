@@ -42,7 +42,8 @@ agent-shield/
     data/      generate.py  attacks.py  telugu.py  templates/
     agent/     llm.py  tools.py  engine.py  policy.md (copied from Appendix A)  prompts.py
     defenses/  base.py  none.py  spotlight.py  promptguard.py  boundary.py  combined.py
-  app/dashboard.py
+  app/dashboard.py   (Streamlit analysis dashboard)
+  web/               (React showcase site: src/components, src/data = export-web output)
   data/v1/   profiles.jsonl  test.jsonl  dev.jsonl  manifest.json
   results/<run_id>/  run_config.json  records.jsonl  summary.csv  summary.md  pareto.png  heatmap.png  gallery.md  label_check.md  progress.log
   .cache/    llm/*.jsonl  promptguard/*.jsonl
@@ -195,7 +196,8 @@ CIs: cluster bootstrap over documents (resample doc IDs with replacement, keep a
 - `pareto.png`: x = benign accuracy, y = ASR mean, CI bars, one labelled point per config.
 - `heatmap.png`: family × config ASR.
 - `gallery.md`: ≥3 failures per config (payload, agent-visible excerpt, decision, tool calls, detector verdict).
-- Dashboard tabs: Results · Explorer (filter by config/family/goal/lang, side-by-side traces) · Live demo (pick a doc or paste text; run (a) and (e); replay by default, live only with a toggle).
+- Dashboard tabs: Overview (plain language) · Results · Explorer (filter by config/family/goal/lang, side-by-side traces) · Live demo (pick a doc or paste text; run (a) and (e); replay by default, live only with a toggle).
+- Showcase site (`web/`, see ADR-4): one static page for non-technical readers, deployed to https://mani-4444.github.io/Agent-Shield/. Data comes only from `injbench export-web` (`webexport.py`: summary.csv rows copied verbatim, one real example per attack family where (a) was fooled and (d) was not); charts carry CI whiskers, direct labels and a table view.
 
 ## 11. Key decisions (ADRs)
 
@@ -219,6 +221,12 @@ Each decision is accepted unless marked otherwise. Don't re-litigate an accepted
 - **Decision:** Option 3, if T08 confirms tool calling and JSON/structured output on the chosen endpoints; otherwise use the provider SDK *inside* `llm.py` only. `config/models.yaml` pins `primary` (all configs), `secondary` (configs a and d, subset if quota is short) and `payload_drafter` (different family from `primary`). Temperature 0, 3 trials, `trial` in the cache key; report mean and worst-of-3 ASR; cluster-bootstrap CIs. Prompt Guard 2 86M runs locally on CPU via transformers; Groq's hosted copy is the fallback.
 - **Consequences:** free, exact replay; model swaps are a config change; results are tied to dated model IDs. Publish the cache as a release asset and state model IDs and run dates in the README.
 - **Note 2026-10-20 (T08 live check, approved by the human):** Groq no longer serves Llama chat models to this key, and its free tier for the remaining candidates is 1K requests / 200K tokens per day (a full run needs ~10K calls / ~8M tokens). Primary is therefore **Qwen3 8B on local Ollama** (RTX 3050 6 GB, 30/70 CPU/GPU split, `reasoning_effort: none` to disable thinking); secondary Groq `qwen/qwen3.8-27b` on configs a/d. Gemini Flash models returned 503 or were retired during the check. Prompt Guard runs locally (licence approved). Calibrated tau = 0.001122 on dev (approved); tau = 0.5 reported as a secondary run.
+
+### ADR-4: Static React showcase site + Streamlit analysis dashboard — Accepted (2026-10-22, by the human)
+- **Context:** the Streamlit dashboard looks plain and needs Python + Ollama, so recruiters and non-technical readers cannot see the results. Most of what they need is static data from the finished run.
+- **Options:** (1) restyle Streamlit; (2) a React app with an API server (FastAPI is out of scope in SPEC); (3) a static React site built from exported run data, keeping Streamlit for analysis and the live demo.
+- **Decision:** Option 3. `web/` (Vite + React 18 + TypeScript + Tailwind v4 + Recharts + framer-motion + lucide), dark security style chosen by the human, palette validated on the dark surface, deployed by `.github/workflows/pages.yml`. Numbers reach the site only through `injbench export-web`; a unit test checks the committed JSON against `results/v1-main/summary.csv`.
+- **Consequences:** a shareable link with no install; two UIs to keep consistent (shared plain-language helpers live in `webexport.py`); the site has no live agent demo (Streamlit keeps it, and AC-14 still tests it); a Node toolchain only inside `web/`.
 
 ## 12. Interfaces fixed by the acceptance suite (T02, 2026-10-20)
 
