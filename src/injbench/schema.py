@@ -223,6 +223,46 @@ class LabelCheck(Model):
     disagreements: list[str]
 
 
+class WebConfigRow(Model):
+    """One config's metrics for the showcase site (copied from summary.csv)."""
+
+    config: str
+    name: str  # plain-language name, e.g. "Strict fact-checker"
+    what: str  # one-sentence description for non-technical readers
+    group: str  # "all" or "family=<F>" / "goal=<G>" / "lang=<L>"
+    metrics: dict[str, MetricValue]
+
+
+class WebRun(Model):
+    run_id: str
+    model_ids: list[str]
+    n_docs: int
+    trials: int
+    n_records: int
+    threshold: float | None
+    run_date: str | None
+    rows: list[WebConfigRow]
+
+
+class WebAction(Model):
+    text: str  # what the assistant did, in everyday words
+    attack_succeeded: bool
+
+
+class WebExample(Model):
+    doc_id: str
+    family: str
+    family_name: str
+    goal: str
+    goal_name: str
+    lang: Lang
+    message: str  # what the agent read (OCR layer)
+    hidden_from_humans: bool  # F3: the payload is not visible to a person
+    hidden_instruction: str
+    correct: str  # the right action, in everyday words
+    actions: dict[str, WebAction]  # config -> what it did (trial 0)
+
+
 class ModelSpec(Model):
     provider: str
     model_id: str
