@@ -1,4 +1,3 @@
-import { ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { REPO_URL } from "../data";
 import { GithubIcon } from "./GithubIcon";
@@ -28,7 +27,7 @@ export function Nav() {
     >
       <nav className="wrapper flex h-14 items-center justify-between gap-4" aria-label="Main">
         <a href="#top" className="flex items-center gap-2.5 font-serif text-lg font-medium text-ink">
-          <ShieldCheck className="size-5" aria-hidden="true" />
+          <img src={`${import.meta.env.BASE_URL}logo-128.png`} alt="" width={32} height={32} className="size-8" />
           Agent Shield
         </a>
         <div className="flex items-center gap-1">

@@ -1,4 +1,3 @@
-import { ShieldCheck } from "lucide-react";
 import { REPO_URL, results } from "../data";
 import { GithubIcon } from "./GithubIcon";
 
@@ -8,7 +7,7 @@ export function Footer() {
       <div className="wrapper grid gap-8 py-12 text-sm text-muted md:grid-cols-[1fr_auto]">
         <div className="max-w-[44rem] space-y-3">
           <p className="flex items-center gap-2.5 font-serif text-lg font-medium text-ink">
-            <ShieldCheck className="size-5" aria-hidden="true" />
+            <img src={`${import.meta.env.BASE_URL}logo-128.png`} alt="" width={32} height={32} className="size-8" />
             Agent Shield
           </p>
           <p>
