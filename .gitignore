@@ -10,3 +10,5 @@ results/smoke/
 results/pilot-dev-abd/
 results/pilot-dev/
 results/pilot-dev-t05/
+web/node_modules/
+web/dist/

@@ -213,7 +213,7 @@ def label_score(
 @app.command("export-web")
 def export_web_cmd(
     run: Annotated[Path, typer.Option(help="Main run directory.")] = Path("results/v1-main"),
-    out: Annotated[Path, typer.Option(help="Output directory.")] = Path("web/public/data"),
+    out: Annotated[Path, typer.Option(help="Output directory.")] = Path("web/src/data"),
     secondary: Annotated[Path | None, typer.Option(help="Secondary-model run.")] = Path(
         "results/v1-secondary"
     ),

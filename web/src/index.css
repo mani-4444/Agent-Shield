@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* Dark security design tokens (chosen by the human). Series colours are validated on #0B1120. */
+/* static: emit every token, including those only used via var() in inline styles */
+@theme static {
+  --color-bg: #0b1120;
+  --color-surface: #111827;
+  --color-surface-2: #172033;
+  --color-line: #1f2937;
+  --color-ink: #e5e7eb;
+  --color-ink-strong: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-accent: #22d3ee;
+  --color-safe: #34d399;
+  --color-danger: #f87171;
+  --color-cfg-a: #3987e5;
+  --color-cfg-b: #d95926;
+  --color-cfg-c: #199e70;
+  --color-cfg-d: #c98500;
+  --color-cfg-e: #d55181;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Soft grid backdrop for the hero */
+.grid-backdrop {
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.07) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

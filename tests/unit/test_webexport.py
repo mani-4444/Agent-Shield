@@ -73,7 +73,7 @@ def test_export_is_deterministic(run_dir: Path, tmp_path: Path) -> None:
 
 def test_committed_site_data_matches_main_summary() -> None:
     """The JSON shipped with the site must equal results/v1-main/summary.csv (no hand edits)."""
-    site = ROOT / "web" / "public" / "data" / "results.json"
+    site = ROOT / "web" / "src" / "data" / "results.json"
     summary = ROOT / "results" / "v1-main" / "summary.csv"
     if not site.is_file() or not summary.is_file():
         pytest.skip("site data or main summary not present")
