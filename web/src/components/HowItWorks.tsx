@@ -1,53 +1,50 @@
-import { ArrowRight, Bot, FileText, Gavel, ScanSearch, Wrench } from "lucide-react";
 import { headline, results } from "../data";
-import { Reveal } from "../motion";
 
 const STEPS = [
-  { icon: FileText, title: "A message arrives", text: "Bank text, receipt or chat, maybe with a hidden instruction." },
-  { icon: ScanSearch, title: "A defense checks it", text: "One of the five setups below, or none." },
-  { icon: Bot, title: "The AI assistant reads it", text: "The same AI model in every setup." },
-  { icon: Wrench, title: "It acts", text: "Pay, hold, flag or do nothing. Payments are simulated." },
-  { icon: Gavel, title: "We score it", text: "Fixed rules decide whether the attack worked. No AI judge." },
+  ["A message arrives", "A bank text, receipt or chat message, sometimes with a hidden instruction inside."],
+  ["A defense checks it", "One of the five setups below, or none at all."],
+  ["The AI assistant reads it", "The same AI model sits behind every setup."],
+  ["It acts", "Pay, hold, flag or do nothing. Payments are simulated; no money moves."],
+  ["We score it", "Fixed rules decide whether the attack worked. No AI judges another AI."],
 ];
 
 export function HowItWorks() {
   const rows = headline(results);
   return (
-    <section id="how" aria-labelledby="how-title" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <Reveal>
-        <h2 id="how-title" className="text-3xl font-bold tracking-tight text-ink-strong sm:text-4xl">How it works</h2>
-      </Reveal>
-      <Reveal delay={0.05}>
-        <ol className="mt-8 grid gap-3 md:grid-cols-5">
-          {STEPS.map((s, i) => (
-            <li key={s.title} className="relative rounded-2xl border border-line bg-surface p-5">
-              <s.icon className="h-6 w-6 text-accent" aria-hidden="true" />
-              <p className="mt-3 font-semibold text-ink-strong">
-                <span className="mr-1 font-mono text-muted">{i + 1}.</span>
-                {s.title}
-              </p>
-              <p className="mt-1 text-sm text-muted">{s.text}</p>
-              {i < STEPS.length - 1 && (
-                <ArrowRight className="absolute top-1/2 -right-3 hidden h-5 w-5 -translate-y-1/2 text-line md:block" aria-hidden="true" />
-              )}
-            </li>
-          ))}
-        </ol>
-      </Reveal>
-      <Reveal delay={0.1}>
-        <h3 className="mt-14 text-xl font-semibold text-ink-strong">The five defenses</h3>
-        <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {rows.map((r) => (
-            <li key={r.config} className="rounded-2xl border border-line bg-surface p-5">
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-3 rounded-full" style={{ background: `var(--color-cfg-${r.config})` }} aria-hidden="true" />
-                <p className="font-semibold text-ink-strong">{r.name}</p>
+    <section id="how" aria-labelledby="how-title" className="section wrapper">
+      <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div className="lg:col-span-5">
+          <p className="eyebrow">How it works</p>
+          <h2 id="how-title" className="mt-3 text-step-4 text-ink">
+            One assistant, five ways to protect it
+          </h2>
+          <ol className="mt-8 border-t border-line">
+            {STEPS.map(([title, text], i) => (
+              <li key={title} className="grid grid-cols-[2.5rem_1fr] border-b border-line py-4">
+                <span className="num text-step--1 text-muted" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <p className="font-medium text-ink">{title}</p>
+                  <p className="mt-1 text-step--1 text-muted">{text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="lg:col-span-7 lg:pt-16">
+          <h3 className="text-step-2 text-ink">The five defenses</h3>
+          <dl className="mt-6 divide-y divide-line border-y border-line">
+            {rows.map((r) => (
+              <div key={r.config} className="grid gap-1 py-4 sm:grid-cols-[14rem_1fr] sm:gap-6">
+                <dt className={r.config === "d" ? "font-medium text-accent" : "font-medium text-ink"}>{r.name}</dt>
+                <dd className="text-muted">{r.what}</dd>
               </div>
-              <p className="mt-2 text-sm text-muted">{r.what}</p>
-            </li>
-          ))}
-        </ul>
-      </Reveal>
+            ))}
+          </dl>
+        </div>
+      </div>
     </section>
   );
 }

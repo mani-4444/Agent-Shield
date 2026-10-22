@@ -1,7 +1,7 @@
-# Progress: Agent Shield v1   Last updated: 2026-10-20 by T01–T19 session
+# Progress: Agent Shield v1   Last updated: 2026-10-22 by T19c session
 
 ## Current state
-T15 done and merged (PR #6). T19b showcase site built on `feat/t19b-showcase-site`: `injbench export-web` + React site in `web/` + Pages deploy workflow. Waiting on the human: merge, enable GitHub Pages (Settings, Pages, Source: GitHub Actions), T18 labels, demo, license.
+T15 done and merged (PR #6). T19b showcase site merged (PR #7). T19c site redesign on `feat/t19c-site-redesign` (committed and pushed, PR open). Waiting on the human: merge the T19c PR, enable GitHub Pages (Settings, Pages, Source: GitHub Actions), T18 labels, demo, license.
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -133,6 +133,7 @@ T15 done and merged (PR #6). T19b showcase site built on `feat/t19b-showcase-sit
 - 2026-10-22 (human: the dashboard was too technical): new first tab **Overview** for non-technical readers: plain question, three headline numbers ("27 in 100" attacks worked with no protection vs 3 in 100 with detector + fact-checker), two bar charts with plain names, what each protection does, a real example from the run (hidden instruction, what each assistant did), glossary. Numbers come from the run's summary.csv; Results/Explorer/Live demo tabs unchanged.
 - 2026-10-22: the T15 script's tau 0.5 step hung on the quota confirmation (the script answered "y" only for the main run); the stuck process was found and stopped, after which the script rebuilt both reports. The tau 0.5 results come from the manual run at 11:28.
 - 2026-10-22 (human: "the Streamlit UI looks like a government website"): added a static React showcase site (DESIGN ADR-4, SPEC R9 note, PLAN T19b). Style: dark security, chosen by the human from three options; palette = reference categorical slots in dark-mode steps, validated on #0B1120 (all checks pass). Data via `injbench export-web` into `web/src/data` (bundled at build time, no runtime fetch); a unit test checks it against `results/v1-main/summary.csv`. Checked with headless Edge + Playwright at 390/768/1440 px: no horizontal overflow; fixed label/whisker overlap, uneven heatmap columns and missing colour dots (Tailwind v4 needs `@theme static` for tokens used via var()). Python package/CLI unchanged; Node tooling only in `web/`. The human's agent-skill folders (`.agents/`, `.claude/skills/`, `skills-lock.json`) are left untracked and excluded from ruff.
+- 2026-10-22 (human: "it is completely looking vibe coded", full freedom over colours, fonts and layout, reference `ui-ux-rules.html`): T19c redesign of `web/`. IBM Plex Serif/Sans/Mono (self-hosted, latin only); OKLCH tinted neutrals + one petrol accent; light and dark themes (system default, labelled toggle, no-flash script); removed gradient text, glow, pill badge, stat cards, icon-card rows, fade-ups and count-ups; charts are now semantic HTML bar tables with CI whiskers (Recharts and framer-motion dropped; JS 277 KB, was ~900 KB). `npm run build` now runs `scripts/contrast.mjs` (all text pairs >= 4.5:1, UI parts >= 3:1, both themes). Checked with Playwright + Edge at 360/768/1280/1440 px in both themes (no overflow after giving the heatmap column `min-w-0`) and a keyboard pass. Numbers and export unchanged.
 
 ## Known issues / blockers
 - Telugu strings, F4 templates and a sample of `data/v1/test.jsonl` reviewed by the human on 2026-10-20 ("okay").

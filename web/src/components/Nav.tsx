@@ -1,6 +1,7 @@
-import { ShieldCheck } from "lucide-react";
-import { GithubIcon } from "./GithubIcon";
+import { useEffect, useState } from "react";
 import { REPO_URL } from "../data";
+import { GithubIcon } from "./GithubIcon";
+import { ThemeToggle } from "./ThemeToggle";
 
 const LINKS = [
   { href: "#results", label: "Results" },
@@ -10,32 +11,45 @@ const LINKS = [
 ];
 
 export function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-line/70 bg-bg/80 backdrop-blur-md">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6" aria-label="Main">
-        <a href="#top" className="flex items-center gap-2 font-semibold text-ink-strong">
-          <ShieldCheck className="h-6 w-6 text-accent" aria-hidden="true" />
+    <header
+      className={`sticky top-0 z-40 bg-bg transition-[border-color] duration-200 ${
+        scrolled ? "shadow-header border-b border-line" : "border-b border-transparent"
+      }`}
+    >
+      <nav className="wrapper flex h-16 items-center justify-between gap-4" aria-label="Main">
+        <a href="#top" className="font-serif text-step-1 font-semibold tracking-tight text-ink">
           Agent Shield
         </a>
-        <div className="flex items-center gap-1 sm:gap-2">
-          <ul className="hidden items-center gap-1 md:flex">
+        <div className="flex items-center gap-1">
+          <ul className="mr-2 hidden items-center gap-1 md:flex">
             {LINKS.map((l) => (
               <li key={l.href}>
                 <a
                   href={l.href}
-                  className="rounded-md px-3 py-2 text-sm text-muted transition-colors hover:text-ink-strong"
+                  className="rounded-[var(--radius-control)] px-3 py-2 text-step--1 text-muted transition-colors duration-150 hover:text-ink"
                 >
                   {l.label}
                 </a>
               </li>
             ))}
           </ul>
+          <ThemeToggle />
           <a
             href={REPO_URL}
-            className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-line px-3 text-sm text-ink transition-colors hover:border-accent/60 hover:text-ink-strong"
+            className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-control)] px-3 text-step--1 text-muted transition-colors duration-150 hover:bg-band hover:text-ink"
           >
-            <GithubIcon className="h-4 w-4" aria-hidden="true" />
-            <span>GitHub</span>
+            <GithubIcon className="size-4" />
+            <span className="hidden sm:inline">GitHub</span>
+            <span className="sr-only sm:hidden">GitHub repository</span>
           </a>
         </div>
       </nav>

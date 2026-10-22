@@ -1,27 +1,27 @@
-import { Comparison } from "./components/Comparison";
 import { Examples } from "./components/Examples";
 import { Footer } from "./components/Footer";
 import { Heatmap } from "./components/Heatmap";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
+import { KeyFigures } from "./components/KeyFigures";
 import { Methodology } from "./components/Methodology";
 import { Nav } from "./components/Nav";
-import { Stats } from "./components/Stats";
+import { Results } from "./components/Results";
 
 export default function App() {
   return (
     <>
       <a
-        href="#results"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-bg"
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-[var(--radius-control)] focus:bg-accent focus:px-4 focus:py-2 focus:text-on-accent"
       >
-        Skip to results
+        Skip to content
       </a>
       <Nav />
-      <main>
+      <main id="main" tabIndex={-1}>
         <Hero />
-        <Stats />
-        <Comparison />
+        <KeyFigures />
+        <Results />
         <Heatmap />
         <Examples />
         <HowItWorks />

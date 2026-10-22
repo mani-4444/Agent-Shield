@@ -197,7 +197,7 @@ CIs: cluster bootstrap over documents (resample doc IDs with replacement, keep a
 - `heatmap.png`: family × config ASR.
 - `gallery.md`: ≥3 failures per config (payload, agent-visible excerpt, decision, tool calls, detector verdict).
 - Dashboard tabs: Overview (plain language) · Results · Explorer (filter by config/family/goal/lang, side-by-side traces) · Live demo (pick a doc or paste text; run (a) and (e); replay by default, live only with a toggle).
-- Showcase site (`web/`, see ADR-4): one static page for non-technical readers, deployed to https://mani-4444.github.io/Agent-Shield/. Data comes only from `injbench export-web` (`webexport.py`: summary.csv rows copied verbatim, one real example per attack family where (a) was fooled and (d) was not); charts carry CI whiskers, direct labels and a table view.
+- Showcase site (`web/`, see ADR-4): one static page for non-technical readers, deployed to https://mani-4444.github.io/Agent-Shield/. Data comes only from `injbench export-web` (`webexport.py`: summary.csv rows copied verbatim, one real example per attack family where (a) was fooled and (d) was not); charts are HTML tables drawn as bars, with CI whiskers and printed values.
 
 ## 11. Key decisions (ADRs)
 
@@ -225,7 +225,7 @@ Each decision is accepted unless marked otherwise. Don't re-litigate an accepted
 ### ADR-4: Static React showcase site + Streamlit analysis dashboard — Accepted (2026-10-22, by the human)
 - **Context:** the Streamlit dashboard looks plain and needs Python + Ollama, so recruiters and non-technical readers cannot see the results. Most of what they need is static data from the finished run.
 - **Options:** (1) restyle Streamlit; (2) a React app with an API server (FastAPI is out of scope in SPEC); (3) a static React site built from exported run data, keeping Streamlit for analysis and the live demo.
-- **Decision:** Option 3. `web/` (Vite + React 18 + TypeScript + Tailwind v4 + Recharts + framer-motion + lucide), dark security style chosen by the human, palette validated on the dark surface, deployed by `.github/workflows/pages.yml`. Numbers reach the site only through `injbench export-web`; a unit test checks the committed JSON against `results/v1-main/summary.csv`.
+- **Decision:** Option 3. `web/` (Vite + React 18 + TypeScript + Tailwind v4 + lucide, IBM Plex fonts self-hosted via @fontsource), first built in a dark security style and redesigned the same day (2026-10-22, human: "looks vibe coded") against `ui-ux-rules.html`: editorial layout, OKLCH tinted neutrals with one petrol accent, light and dark themes, no motion beyond hover feedback, charts as semantic HTML bar tables (Recharts and framer-motion removed), a build-time WCAG contrast check (`web/scripts/contrast.mjs`); deployed by `.github/workflows/pages.yml`. Numbers reach the site only through `injbench export-web`; a unit test checks the committed JSON against `results/v1-main/summary.csv`.
 - **Consequences:** a shareable link with no install; two UIs to keep consistent (shared plain-language helpers live in `webexport.py`); the site has no live agent demo (Streamlit keeps it, and AC-14 still tests it); a Node toolchain only inside `web/`.
 
 ## 12. Interfaces fixed by the acceptance suite (T02, 2026-10-20)

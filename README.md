@@ -100,7 +100,7 @@ benign twin already showed (model mistakes the attack did not cause).
 
 ## Dashboards
 
-- **[Showcase site](https://mani-4444.github.io/Agent-Shield/)** (`web/`, React + Vite + Tailwind, static on GitHub Pages): for
+- **[Showcase site](https://mani-4444.github.io/Agent-Shield/)** (`web/`, React + Vite + Tailwind, light and dark themes, static on GitHub Pages): for
   everyone. Its numbers are exported from the run with `injbench export-web` (copied from
   `summary.csv`, never retyped).
 - **Analysis dashboard** (`app/dashboard.py`, Streamlit): for developers. Plain-language overview,

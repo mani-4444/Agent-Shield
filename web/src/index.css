@@ -1,63 +1,208 @@
 @import "tailwindcss";
+@import "@fontsource/ibm-plex-serif/latin-500.css";
+@import "@fontsource/ibm-plex-serif/latin-600.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
 
-/* Dark security design tokens (chosen by the human). Series colours are validated on #0B1120. */
-/* static: emit every token, including those only used via var() in inline styles */
-@theme static {
-  --color-bg: #0b1120;
-  --color-surface: #111827;
-  --color-surface-2: #172033;
-  --color-line: #1f2937;
-  --color-ink: #e5e7eb;
-  --color-ink-strong: #f8fafc;
-  --color-muted: #94a3b8;
-  --color-accent: #22d3ee;
-  --color-safe: #34d399;
-  --color-danger: #f87171;
-  --color-cfg-a: #3987e5;
-  --color-cfg-b: #d95926;
-  --color-cfg-c: #199e70;
-  --color-cfg-d: #c98500;
-  --color-cfg-e: #d55181;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+/* Latin subset of the variable sans only (the package's own stylesheet ships every script). */
+@font-face {
+  font-family: "IBM Plex Sans Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 700;
+  src: url("@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * Tokens follow ui-ux-rules.html: tinted neutrals (hue 250), one accent (petrol, hue 200),
+ * semantic danger/success, fluid type and spacing, neutral radius, short motion.
+ * Light is the default; [data-theme="dark"] is set by the inline script in index.html
+ * from the saved choice or prefers-color-scheme. Contrast is checked by scripts/contrast.mjs.
+ */
+:root {
+  color-scheme: light;
+  --bg: oklch(98.6% 0.004 250);
+  --bg-band: oklch(96.4% 0.006 250);
+  --surface: oklch(100% 0 0);
+  --border: oklch(90.5% 0.008 250);
+  --border-strong: oklch(62% 0.014 250);
+  --text: oklch(23% 0.016 250);
+  --text-muted: oklch(45% 0.016 250);
+  --accent: oklch(47% 0.085 205);
+  --accent-hover: oklch(41% 0.085 205);
+  --accent-subtle: oklch(95.5% 0.022 205);
+  --on-accent: oklch(100% 0 0);
+  --danger: oklch(51% 0.16 27);
+  --danger-subtle: oklch(96.4% 0.022 27);
+  --success: oklch(48% 0.1 158);
+  --success-subtle: oklch(96.2% 0.028 158);
+  --bar: oklch(58% 0.014 250);
+  --track: oklch(94% 0.006 250);
+  --on-strong: oklch(100% 0 0);
+  --shadow-color: 250 30% 15%;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: oklch(17% 0.008 250);
+  --bg-band: oklch(19.6% 0.009 250);
+  --surface: oklch(21.5% 0.01 250);
+  --border: oklch(30% 0.011 250);
+  --border-strong: oklch(55% 0.014 250);
+  --text: oklch(94% 0.005 250);
+  --text-muted: oklch(75% 0.01 250);
+  --accent: oklch(79% 0.075 205);
+  --accent-hover: oklch(85% 0.065 205);
+  --accent-subtle: oklch(27% 0.03 205);
+  --on-accent: oklch(17% 0.008 250);
+  --danger: oklch(74% 0.12 27);
+  --danger-subtle: oklch(26% 0.04 27);
+  --success: oklch(78% 0.1 158);
+  --success-subtle: oklch(25% 0.035 158);
+  --bar: oklch(57% 0.014 250);
+  --track: oklch(24% 0.01 250);
+  --on-strong: oklch(17% 0.008 250);
+  --shadow-color: 250 40% 3%;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-band: var(--bg-band);
+  --color-surface: var(--surface);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-bar: var(--bar);
+  --color-track: var(--track);
+}
+
+@theme {
+  --font-sans: "IBM Plex Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "IBM Plex Serif", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Fluid scale: 16px at 360px (x1.2) to 18px at 1240px (x1.25) */
+  --text-step--1: clamp(0.8333rem, 0.8061rem + 0.1212vw, 0.9rem);
+  --text-step--1--line-height: 1.45;
+  --text-step-0: clamp(1rem, 0.9489rem + 0.2273vw, 1.125rem);
+  --text-step-0--line-height: 1.6;
+  --text-step-1: clamp(1.2rem, 1.1156rem + 0.375vw, 1.4063rem);
+  --text-step-1--line-height: 1.35;
+  --text-step-2: clamp(1.44rem, 1.31rem + 0.5778vw, 1.7578rem);
+  --text-step-2--line-height: 1.25;
+  --text-step-3: clamp(1.728rem, 1.536rem + 0.8532vw, 2.1973rem);
+  --text-step-3--line-height: 1.2;
+  --text-step-4: clamp(2.0736rem, 1.7983rem + 1.2235vw, 2.7466rem);
+  --text-step-4--line-height: 1.15;
+  --text-step-5: clamp(2.4883rem, 2.1017rem + 1.7181vw, 3.4332rem);
+  --text-step-5--line-height: 1.1;
+
+  --radius-control: 6px;
+  --radius-panel: 8px;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-ink);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
+  font-size: var(--text-step-0);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  text-wrap: balance;
+  letter-spacing: -0.015em;
+}
+
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.wrapper {
+  max-inline-size: 75rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+}
+
+.section {
+  padding-block: clamp(4rem, 2rem + 6vw, 8rem);
+}
+
+.prose {
+  max-inline-size: 65ch;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-step--1);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+a.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-  border-radius: 6px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-/* Soft grid backdrop for the hero */
-.grid-backdrop {
-  background-image:
-    linear-gradient(to right, rgb(148 163 184 / 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(148 163 184 / 0.07) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+.shadow-header {
+  box-shadow:
+    0 1px 1px hsl(var(--shadow-color) / 0.05),
+    0 1px 2px hsl(var(--shadow-color) / 0.06);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.link:hover {
+    color: var(--accent-hover);
+    text-decoration-thickness: 2px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
