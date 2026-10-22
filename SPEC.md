@@ -88,7 +88,7 @@ A finance-style extraction agent reads one untrusted document plus a trusted use
 - **R6 Runner.** Configs × docs × trials; resumable; one JSONL record per trial; response cache keyed by content hash; per-stage latency and tokens; `--replay` makes zero network calls.
 - **R7 Metrics.** Per config and per config × family / goal / language: mean ASR, worst-of-3 ASR, benign accuracy, strict and safe utility under attack, classifier FPR (overall and Telugu), added latency p50/p95 vs (a), tokens per doc. 95% CIs by cluster bootstrap over documents.
 - **R8 Report.** `summary.md`, `summary.csv`, Pareto chart, family × config heatmap, failure gallery (≥3 per config).
-- **R9 Dashboard.** Streamlit: Results, Explorer (any doc, every config's trace), Live demo ((a) vs (e) side by side).
+- **R9 Dashboard.** Streamlit: Results, Explorer (any doc, every config's trace), Live demo ((a) vs (e) side by side). *Added 2026-10-22 (approved by the human): a static showcase site generated from the run's exported data (DESIGN.md ADR-4); metrics and detectors unchanged.*
 - **R10 Manual label check.** Sample 60 trials stratified by config and goal; report detector–human agreement.
 - **R11 (Stretch, 3 h timebox) AgentDojo subset.** Banking suite, no defense + one built-in defense; reported separately, never merged into the main table.
 - **R12 Reproducibility.** `config/models.yaml` pins models, temperature, max tokens, seeds; `data/v1/manifest.json` stores the dataset hash; each run stores its config and git SHA.

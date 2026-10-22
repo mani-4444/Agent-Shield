@@ -13,6 +13,7 @@ Read first: SPEC.md (problem, spec, threat model), DESIGN.md (how + key decision
 - Eval: `uv run injbench eval --config d --trials 3 --split dev --run-id dev-d` (use `--limit 10` for pilots, `--replay` for zero network calls)
 - Report: `uv run injbench report --run results/<run_id>`
 - Dashboard: `uv run streamlit run app/dashboard.py`
+- Showcase site: `uv run injbench export-web` (refresh `web/src/data`), then `cd web && npm ci && npm run dev` / `npm run build` (typecheck: `npm run lint`)
 
 ## Definition of done (run all before finishing; paste the output)
 - `uv run ruff check . && uv run mypy src && uv run pytest -q` all green.
@@ -25,6 +26,7 @@ Read first: SPEC.md (problem, spec, threat model), DESIGN.md (how + key decision
 - All LLM calls go through `agent/llm.py` (`complete()`), which handles cache, retries, rate limits and latency logging. Never call a provider SDK directly elsewhere.
 - Model IDs, temperature, max tokens and seeds live only in `config/models.yaml`.
 - Records are JSONL, one line per trial; keys are `config|doc_id|trial`.
+- Site numbers come only from `injbench export-web` output in `web/src/data`; never edit that JSON or type numbers into components.
 - Synthetic identifiers only: phone numbers start `+91 0`, VPAs end `@fakepay` or `@examplebank`, canaries start `CANARY-`.
 
 ## Architecture boundaries

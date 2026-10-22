@@ -1,7 +1,7 @@
 # Progress: Agent Shield v1   Last updated: 2026-10-20 by T01–T19 session
 
 ## Current state
-**T15 done (2026-10-22 10:46).** `v1-main`: 6,000 records, 0 errors; `v1-main-t05` (tau 0.5): 2,400 records from cache; replay + report regenerates `summary.csv` byte-identical (AC-11 on the real run). README results filled from `summary.md` (every number checked against the summaries). T18 label sheet ready: `results/v1-main/label_sheet.csv` (60 trials, 12 per config, 20 per goal) waits for the human.
+T15 done and merged (PR #6). T19b showcase site built on `feat/t19b-showcase-site`: `injbench export-web` + React site in `web/` + Pages deploy workflow. Waiting on the human: merge, enable GitHub Pages (Settings, Pages, Source: GitHub Actions), T18 labels, demo, license.
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -30,7 +30,7 @@
 | F12 | Pilot + freeze | T14 | done (gate signed 2026-10-21) |
 | F13 | Full test run | T15 | done 2026-10-22 (6,000 records, 0 errors) |
 | F14 | AgentDojo subset (stretch) | T16 | todo |
-| F15 | Report, label check, dashboard | T17–T19 | code done (AC-13/14/15 green); hand labels at T18 need the human |
+| F15 | Report, label check, dashboard | T17–T19, T19b | code done (AC-13/14/15 green); showcase site (T19b) built; hand labels at T18 need the human |
 | F16 | README, demo, review, release | T20–T21 | todo |
 
 ## Done (with commit SHAs, after your approval)
@@ -48,9 +48,10 @@
 - (none; since 2026-10-20 the agent commits without asking, merges still go through the human)
 
 ## Next up
-1. **Human, T18:** open `results/v1-main/label_sheet.csv`, fill `human_attack_success` (yes/no) for the 60 rows, then `uv run injbench label-score --run results/v1-main` (target >= 95% agreement; AC-15's real gate).
-2. **Human:** record the 2-minute demo (PLAN.md "Demo script"; dashboard: `uv run streamlit run app/dashboard.py`), add its link to the README; pick a license (SPEC open question 8).
-3. Agent: T21 fresh-context review against SPEC ACs; then the human reviews with the checklist, merges the PR and tags `v1.0`.
+1. **Human:** merge the T19b PR, then enable Pages once (Settings, Pages, Source: "GitHub Actions"); the deploy workflow publishes https://mani-4444.github.io/Agent-Shield/.
+2. **Human, T18:** fill `results/v1-main/label_sheet.csv` (60 rows, yes/no), then `uv run injbench label-score --run results/v1-main`.
+3. **Human:** 2-minute demo (the site's hero and examples make a good opening), add its link to the README; pick a license.
+4. Agent: T21 fresh-context review; the human tags `v1.0`.
 
 ## Decisions made
 - Size Large, trimmed: five planning docs only; no separate ADR, threat-model or prompt files.
@@ -131,6 +132,7 @@
 - 2026-10-22 (human): project name is **Agent Shield**. Renamed in every human-facing place (README, dashboard, report titles, CLI help, planning docs) and the distribution name (`agent-shield`). The Python package and CLI stay `injbench` because the protected acceptance tests import it.
 - 2026-10-22 (human: the dashboard was too technical): new first tab **Overview** for non-technical readers: plain question, three headline numbers ("27 in 100" attacks worked with no protection vs 3 in 100 with detector + fact-checker), two bar charts with plain names, what each protection does, a real example from the run (hidden instruction, what each assistant did), glossary. Numbers come from the run's summary.csv; Results/Explorer/Live demo tabs unchanged.
 - 2026-10-22: the T15 script's tau 0.5 step hung on the quota confirmation (the script answered "y" only for the main run); the stuck process was found and stopped, after which the script rebuilt both reports. The tau 0.5 results come from the manual run at 11:28.
+- 2026-10-22 (human: "the Streamlit UI looks like a government website"): added a static React showcase site (DESIGN ADR-4, SPEC R9 note, PLAN T19b). Style: dark security, chosen by the human from three options; palette = reference categorical slots in dark-mode steps, validated on #0B1120 (all checks pass). Data via `injbench export-web` into `web/src/data` (bundled at build time, no runtime fetch); a unit test checks it against `results/v1-main/summary.csv`. Checked with headless Edge + Playwright at 390/768/1440 px: no horizontal overflow; fixed label/whisker overlap, uneven heatmap columns and missing colour dots (Tailwind v4 needs `@theme static` for tokens used via var()). Python package/CLI unchanged; Node tooling only in `web/`. The human's agent-skill folders (`.agents/`, `.claude/skills/`, `skills-lock.json`) are left untracked and excluded from ruff.
 
 ## Known issues / blockers
 - Telugu strings, F4 templates and a sample of `data/v1/test.jsonl` reviewed by the human on 2026-10-20 ("okay").

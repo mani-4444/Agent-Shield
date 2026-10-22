@@ -53,6 +53,7 @@ New project; schemas in DESIGN.md §3. Dataset frozen as `data/v1/` with `manife
 - [ ] **T17** `report.py`: summary, Pareto, heatmap, gallery. Verify: `uv run pytest tests/acceptance/test_ac13_report.py -q` and open the PNGs. (AC-13)
 - [ ] **T18** `labelcheck.py`: sample 60 trials, hand-label, compute agreement. Verify: `results/v1-main/label_check.md` shows ≥95%. (AC-15)
 - [ ] **T19 [P]** Streamlit dashboard (Results, Explorer, Live demo). Verify: `uv run pytest tests/acceptance/test_ac14_dashboard.py -q` and a manual click-through. (AC-14)
+- [ ] **T19b** Showcase site (added 2026-10-22, DESIGN ADR-4): `injbench export-web` + `web/` React site + GitHub Pages deploy. Verify: `uv run pytest tests/unit/test_webexport.py -q`; `cd web && npm ci && npm run lint && npm run build`; screenshots at 390/768/1440 px with no horizontal overflow; after merge, the live URL loads and its numbers match the README.
 - [ ] **T20** README (outline at the end of this file): fill the eval table *only* from `summary.md`; limitations; credits; record 2-minute demo (baseline fails → (e) holds → table). Verify: every number in README appears in `summary.csv`.
 - [ ] **T21** Review: fresh-context reviewer subagent against SPEC ACs ("Session prompts" §6 below), then human review with the "Review checklist" below. **Gate: approve and tag `v1.0`.**
 

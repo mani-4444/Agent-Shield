@@ -3,7 +3,9 @@
 An indirect prompt-injection benchmark for document-reading finance agents: 400 paired documents,
 6 attack families, 3 attacker goals, 5 defenses, measured with 95% confidence intervals.
 
-[Results](#results) · [What it tests](#what-it-tests) · [Reproduce](#reproduce) ·
+**[Live site: https://mani-4444.github.io/Agent-Shield/](https://mani-4444.github.io/Agent-Shield/)** (results, charts and real attacks, explained in plain language)
+
+[Results](#results) · [What it tests](#what-it-tests) · [Dashboards](#dashboards) · [Reproduce](#reproduce) ·
 [Limitations](#limitations) · Demo video: TBD
 
 ## Results
@@ -96,6 +98,14 @@ characters. Metrics use a cluster bootstrap over documents (2,000 resamples). A 
 **twin-adjusted ASR**, added after the dev pilot and before any test run, discounts successes the
 benign twin already showed (model mistakes the attack did not cause).
 
+## Dashboards
+
+- **[Showcase site](https://mani-4444.github.io/Agent-Shield/)** (`web/`, React + Vite + Tailwind, static on GitHub Pages): for
+  everyone. Its numbers are exported from the run with `injbench export-web` (copied from
+  `summary.csv`, never retyped).
+- **Analysis dashboard** (`app/dashboard.py`, Streamlit): for developers. Plain-language overview,
+  full results, a per-trial explorer and a live (a) vs (e) demo that runs the agent locally.
+
 ## Reproduce
 
 ```bash
@@ -105,7 +115,9 @@ uv run injbench data --seed 2026 --out data/v1      # regenerates data/v1 byte f
 # replay from cached responses (no keys, no network), then rebuild the report:
 uv run injbench eval --config all --split test --trials 3 --run-id v1-main --replay
 uv run injbench report --run results/v1-main
-uv run streamlit run app/dashboard.py
+uv run streamlit run app/dashboard.py              # analysis dashboard
+uv run injbench export-web --run-date 2026-10-22   # refresh the site data in web/src/data
+cd web && npm ci && npm run dev                    # showcase site at localhost:5173/Agent-Shield/
 ```
 
 Live runs need [Ollama](https://ollama.com) with `qwen3:8b` (primary), a Groq key for the
