@@ -79,7 +79,7 @@ export function ChoiceGroup<T extends string>({
             aria-checked={on}
             tabIndex={on ? 0 : -1}
             onClick={() => onChange(o.value)}
-            className={`relative isolate transition-colors duration-150 ${item} ${chipBorder} ${
+            className={`press relative isolate ${item} ${chipBorder} ${
               on ? (variant === "chips" ? "text-accent" : "text-ink") : "text-muted hover:text-ink"
             }`}
           >

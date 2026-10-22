@@ -40,7 +40,18 @@ export function Simulator() {
             options={examples.map((e) => ({ value: e.family, label: e.family_name }))}
           />
           <div className="flex-1">
-            <PhoneMessage ex={ex} />
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={ex.family}
+                className="h-full"
+                initial={reduce ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduce ? undefined : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.25, ease: EASE_OUT }}
+              >
+                <PhoneMessage ex={ex} />
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 

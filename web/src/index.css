@@ -54,6 +54,7 @@
   --on-strong: oklch(100% 0 0);
   --card-shadow: 0 2px 12px oklch(0% 0 0 / 0.06);
   --card-highlight: transparent;
+  --card-shadow-hover: 0 2px 4px oklch(0% 0 0 / 0.04), 0 18px 40px -12px oklch(0% 0 0 / 0.16);
 }
 
 :root[data-theme="dark"] {
@@ -80,6 +81,7 @@
   --on-strong: oklch(0% 0 0);
   --card-shadow: none;
   --card-highlight: transparent;
+  --card-shadow-hover: 0 18px 44px -14px oklch(55% 0.2 258 / 0.35);
 }
 
 @theme inline {
@@ -133,6 +135,7 @@
 
 html {
   scroll-padding-top: 5rem;
+  scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -189,6 +192,37 @@ dd {
   box-shadow:
     inset 0 1px 0 var(--card-highlight),
     var(--card-shadow);
+}
+
+/*
+ * Cards that respond to the pointer: lift, brighter edge, soft shadow (blue glow in dark).
+ * The lift uses `translate`, not `transform`, because framer-motion owns the inline transform
+ * of revealed cards and would override it.
+ */
+.card-hover {
+  transition:
+    translate 300ms var(--ease-out),
+    border-color 300ms var(--ease-out),
+    box-shadow 300ms var(--ease-out),
+    background-color 300ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .card-hover:hover {
+    translate: 0 -4px;
+    border-color: var(--border-strong);
+    box-shadow: var(--card-shadow-hover);
+  }
+}
+
+/* Buttons and controls press in slightly. */
+.press {
+  transition:
+    transform 150ms var(--ease-out),
+    background-color 150ms var(--ease-out),
+    color 150ms var(--ease-out);
+}
+.press:active {
+  transform: scale(0.97);
 }
 
 a.link {

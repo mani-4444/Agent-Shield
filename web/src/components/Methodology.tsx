@@ -1,6 +1,6 @@
 import { FlaskConical, Info, Languages, Lock, Repeat, Scale, ServerCog, type LucideIcon } from "lucide-react";
 import { headline, metric, per100, results, secondary } from "../data";
-import { Reveal } from "../motion";
+import { Reveal, Stagger, StaggerItem } from "../motion";
 import { SectionHeader } from "./SectionHeader";
 
 export function Methodology() {
@@ -41,19 +41,19 @@ export function Methodology() {
           title="Why you can trust the numbers, and where they stop"
         />
 
-        <Reveal>
+        <Stagger>
           <dl className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {facts.map(([Icon, term, text]) => (
-              <div key={term} className="card p-6">
+              <StaggerItem key={term} className="card card-hover p-6">
                 <span className="grid size-10 place-items-center rounded-xl bg-accent-subtle text-accent" aria-hidden="true">
                   <Icon className="size-5" />
                 </span>
                 <dt className="mt-4 text-lg font-semibold text-ink">{term}</dt>
                 <dd className="mt-1.5 text-[0.9375rem] text-muted">{text}</dd>
-              </div>
+              </StaggerItem>
             ))}
           </dl>
-        </Reveal>
+        </Stagger>
 
         <Reveal className="card mt-4 flex flex-col gap-4 p-6 sm:flex-row sm:p-8">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-ink" aria-hidden="true">

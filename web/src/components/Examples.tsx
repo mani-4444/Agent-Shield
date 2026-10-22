@@ -1,13 +1,15 @@
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CircleCheck } from "lucide-react";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { CONFIG_ORDER, examples, headline, results } from "../data";
-import { Reveal } from "../motion";
+import { EASE_OUT, Reveal } from "../motion";
 import { PhoneMessage } from "./PhoneMessage";
 import { SectionHeader } from "./SectionHeader";
 import { Verdict } from "./Verdict";
 
 export function Examples() {
   const [active, setActive] = useState(0);
+  const reduce = useReducedMotion();
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const names = Object.fromEntries(headline(results).map((r) => [r.config, r.name]));
   if (!examples.length) return null;
@@ -59,7 +61,7 @@ export function Examples() {
                   aria-controls="example-panel"
                   tabIndex={on ? 0 : -1}
                   onClick={() => setActive(i)}
-                  className={`min-h-10 rounded-full border px-4 text-sm font-medium transition-colors duration-150 ${
+                  className={`press min-h-10 rounded-full border px-4 text-sm font-medium ${
                     on
                       ? "border-accent bg-accent-subtle text-accent"
                       : "border-line bg-surface text-muted hover:border-line-strong hover:text-ink"
@@ -76,8 +78,17 @@ export function Examples() {
             role="tabpanel"
             aria-labelledby={`tab-${ex.doc_id}`}
             tabIndex={0}
-            className="card mt-8 grid gap-6 p-4 sm:p-6 lg:grid-cols-[1.15fr_1fr]"
+            className="card mt-8 p-4 sm:p-6"
           >
+            <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={ex.doc_id}
+              className="grid gap-6 lg:grid-cols-[1.15fr_1fr]"
+              initial={reduce ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? undefined : { opacity: 0, y: -8 }}
+              transition={{ duration: 0.28, ease: EASE_OUT }}
+            >
             <div className="flex flex-col gap-4">
               <PhoneMessage ex={ex} />
               <p className="flex items-start gap-2.5 rounded-xl bg-success-subtle px-4 py-3 text-[0.9375rem] text-ink">
@@ -97,6 +108,8 @@ export function Examples() {
                 ) : null;
               })}
             </ul>
+            </motion.div>
+            </AnimatePresence>
           </div>
         </Reveal>
       </div>

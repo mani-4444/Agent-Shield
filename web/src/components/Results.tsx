@@ -84,7 +84,7 @@ export function Results() {
           </ChartCard>
 
           {pgDefault != null && pgTuned != null && (
-            <Reveal className="card flex flex-col p-5 sm:p-7 lg:col-span-5">
+            <Reveal className="card card-hover flex flex-col p-5 sm:p-7 lg:col-span-5">
               <span className="grid size-10 place-items-center rounded-xl bg-accent-subtle text-accent" aria-hidden="true">
                 <Gauge className="size-5" />
               </span>

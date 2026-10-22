@@ -1,6 +1,6 @@
 import { Megaphone, ShieldCheck, Tag, TriangleAlert, type LucideIcon } from "lucide-react";
 import { CONFIG_ORDER, groupRows, headline, metric, results, shortName } from "../data";
-import { Reveal } from "../motion";
+import { Reveal, Stagger, StaggerItem } from "../motion";
 import { SectionHeader } from "./SectionHeader";
 
 const FAMILIES: [string, string][] = [
@@ -92,10 +92,11 @@ export function Heatmap() {
             </div>
           </Reveal>
 
-          <Reveal>
+          <Stagger>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {FINDINGS.map(([Icon, title, text]) => (
-                <li key={title} className="card flex h-full gap-4 p-5">
+                <li key={title} className="flex">
+                  <StaggerItem className="card card-hover flex w-full gap-4 p-5">
                   <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-accent" aria-hidden="true">
                     <Icon className="size-[18px]" />
                   </span>
@@ -103,10 +104,11 @@ export function Heatmap() {
                     <p className="font-medium text-ink">{title}</p>
                     <p className="mt-1 text-sm text-muted">{text}</p>
                   </div>
+                  </StaggerItem>
                 </li>
             ))}
           </ul>
-          </Reveal>
+          </Stagger>
         </div>
       </div>
     </section>
