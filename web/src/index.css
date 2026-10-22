@@ -1,63 +1,309 @@
 @import "tailwindcss";
 
-/* Dark security design tokens (chosen by the human). Series colours are validated on #0B1120. */
-/* static: emit every token, including those only used via var() in inline styles */
-@theme static {
-  --color-bg: #0b1120;
-  --color-surface: #111827;
-  --color-surface-2: #172033;
-  --color-line: #1f2937;
-  --color-ink: #e5e7eb;
-  --color-ink-strong: #f8fafc;
-  --color-muted: #94a3b8;
-  --color-accent: #22d3ee;
-  --color-safe: #34d399;
-  --color-danger: #f87171;
-  --color-cfg-a: #3987e5;
-  --color-cfg-b: #d95926;
-  --color-cfg-c: #199e70;
-  --color-cfg-d: #c98500;
-  --color-cfg-e: #d55181;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+/*
+ * Anthropic-style type with open fonts (anthropic.com's own faces are proprietary):
+ * Source Serif 4 for headings (close to Tiempos / Anthropic Serif) and DM Sans for text
+ * (close to Styrene / Anthropic Sans). Both use their optical-size axis; latin subset only.
+ */
+@font-face {
+  font-family: "Source Serif 4 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("@fontsource-variable/source-serif-4/files/source-serif-4-latin-opsz-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "DM Sans Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 1000;
+  src: url("@fontsource-variable/dm-sans/files/dm-sans-latin-opsz-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+ * Tokens, Apple-style: pure neutrals (no tint), one blue accent, red = attack worked,
+ * green = attack held. Dark (pure black) is the default, set by the inline script in index.html
+ * unless the visitor chose light; :root holds the light values. scripts/contrast.mjs checks every
+ * pair. --accent is for text, data and focus; --accent-solid is the filled button (white text).
+ */
+:root {
+  color-scheme: light;
+  --bg: oklch(100% 0 0);
+  --bg-band: oklch(97.3% 0.002 286);
+  --surface: oklch(100% 0 0);
+  --surface-2: oklch(96.2% 0.002 286);
+  --border: oklch(91% 0.002 286);
+  --border-strong: oklch(62% 0.004 286);
+  --text: oklch(21% 0.004 286);
+  --text-muted: oklch(50% 0.006 286);
+  --accent: oklch(52% 0.17 255);
+  --accent-solid: oklch(55% 0.2 258);
+  --accent-solid-hover: oklch(50% 0.2 258);
+  --accent-subtle: oklch(95.5% 0.025 255);
+  --on-accent: oklch(100% 0 0);
+  --danger: oklch(53% 0.21 27);
+  --danger-subtle: oklch(96.5% 0.02 27);
+  --success: oklch(50% 0.14 150);
+  --success-subtle: oklch(96.5% 0.03 150);
+  --bar: oklch(60% 0.004 286);
+  --track: oklch(93.5% 0.002 286);
+  --on-strong: oklch(100% 0 0);
+  --card-shadow: 0 2px 12px oklch(0% 0 0 / 0.06);
+  --card-highlight: transparent;
+  --card-shadow-hover: 0 2px 4px oklch(0% 0 0 / 0.04), 0 18px 40px -12px oklch(0% 0 0 / 0.16);
+  --glass-bg: oklch(100% 0 0 / 0.62);
+  --glass-edge: oklch(100% 0 0 / 0.75);
+  --glass-shine: oklch(100% 0 0 / 0.9);
+  --glass-shadow: 0 10px 30px -10px oklch(20% 0.01 286 / 0.25), 0 1px 3px oklch(20% 0.01 286 / 0.12);
+  --glass-pill: oklch(0% 0 0 / 0.07);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: oklch(0% 0 0);
+  --bg-band: oklch(14% 0.002 286);
+  --surface: oklch(22% 0.003 286);
+  --surface-2: oklch(27% 0.003 286);
+  --border: oklch(26% 0.003 286);
+  --border-strong: oklch(56% 0.004 286);
+  --text: oklch(97% 0.002 286);
+  --text-muted: oklch(74% 0.005 286);
+  --accent: oklch(68% 0.17 252);
+  --accent-solid: oklch(55% 0.2 258);
+  --accent-solid-hover: oklch(52% 0.2 258);
+  --accent-subtle: oklch(27% 0.06 255);
+  --on-accent: oklch(100% 0 0);
+  --danger: oklch(70% 0.19 27);
+  --danger-subtle: oklch(25% 0.06 27);
+  --success: oklch(78% 0.17 150);
+  --success-subtle: oklch(25% 0.05 150);
+  --bar: oklch(58% 0.004 286);
+  --track: oklch(30% 0.003 286);
+  --on-strong: oklch(0% 0 0);
+  --card-shadow: none;
+  --card-highlight: transparent;
+  --card-shadow-hover: 0 18px 44px -14px oklch(55% 0.2 258 / 0.35);
+  --glass-bg: oklch(24% 0.004 286 / 0.55);
+  --glass-edge: oklch(100% 0 0 / 0.14);
+  --glass-shine: oklch(100% 0 0 / 0.28);
+  --glass-shadow: 0 12px 36px -10px oklch(0% 0 0 / 0.7), 0 1px 2px oklch(0% 0 0 / 0.5);
+  --glass-pill: oklch(100% 0 0 / 0.12);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-band: var(--bg-band);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent);
+  --color-accent-solid: var(--accent-solid);
+  --color-accent-solid-hover: var(--accent-solid-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-bar: var(--bar);
+  --color-track: var(--track);
+}
+
+@theme {
+  --font-serif: "Source Serif 4 Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "DM Sans Variable", -apple-system, BlinkMacSystemFont, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  /* Nothing on the page is set below 14px. */
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.65;
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.6;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.4;
+  --text-2xl: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
+  --text-2xl--line-height: 1.25;
+  --text-3xl: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
+  --text-3xl--line-height: 1.08;
+  --text-display: clamp(3rem, 1.6rem + 5.6vw, 5.75rem);
+  --text-display--line-height: 1.02;
+  --text-metric: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  --text-metric--line-height: 1;
+
+  --radius-card: 24px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html {
-  scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-ink);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
-  line-height: 1.6;
+  font-size: var(--text-base);
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  text-wrap: balance;
+  letter-spacing: -0.02em;
+}
+
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+/*
+ * Component classes live in Tailwind's components layer, so utility classes on the same element
+ * (bg-*, border-*, fixed, …) override them as expected.
+ */
+@layer components {
+  .num {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  .wrapper {
+    max-inline-size: 76rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 2.5rem);
+  }
+
+  .section {
+    padding-block: clamp(5rem, 3rem + 6vw, 8rem);
+  }
+
+  .eyebrow {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow:
+      inset 0 1px 0 var(--card-highlight),
+      var(--card-shadow);
+  }
+
+  /*
+   * Cards that respond to the pointer: lift, brighter edge, soft shadow (blue glow in dark).
+   * The lift uses `translate`, not `transform`, because framer-motion owns the inline transform
+   * of revealed cards and would override it.
+   */
+  .card-hover {
+    transition:
+      translate 300ms var(--ease-out),
+      border-color 300ms var(--ease-out),
+      box-shadow 300ms var(--ease-out),
+      background-color 300ms var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .card-hover:hover {
+      translate: 0 -4px;
+      border-color: var(--border-strong);
+      box-shadow: var(--card-shadow-hover);
+    }
+  }
+
+  /*
+   * Liquid glass (iOS style): translucent, heavily blurred and saturated, a light edge, and a
+   * specular highlight along the top. Solid when the visitor asks for reduced transparency.
+   */
+  .glass {
+    isolation: isolate;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+    backdrop-filter: blur(24px) saturate(190%);
+    border: 1px solid var(--glass-edge);
+    box-shadow:
+      inset 0 1px 0 var(--glass-shine),
+      inset 0 -1px 0 oklch(0% 0 0 / 0.08),
+      var(--glass-shadow);
+  }
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 140% at 20% -40%, oklch(100% 0 0 / 0.22), transparent 55%),
+      radial-gradient(80% 120% at 100% 140%, oklch(100% 0 0 / 0.08), transparent 60%);
+  }
+  .glass-pill {
+    background: var(--glass-pill);
+    box-shadow: inset 0 1px 0 var(--glass-shine);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass {
+      background: var(--surface);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* Buttons and controls press in slightly. */
+  .press {
+    transition:
+      transform 150ms var(--ease-out),
+      background-color 150ms var(--ease-out),
+      color 150ms var(--ease-out);
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+}
+
+a.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
-  border-radius: 6px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-/* Soft grid backdrop for the hero */
-.grid-backdrop {
-  background-image:
-    linear-gradient(to right, rgb(148 163 184 / 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(148 163 184 / 0.07) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
+@media (hover: hover) and (pointer: fine) {
+  a.link:hover {
+    text-decoration-thickness: 2px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

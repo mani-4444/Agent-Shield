@@ -263,6 +263,32 @@ class WebExample(Model):
     actions: dict[str, WebAction]  # config -> what it did (trial 0)
 
 
+class WebTrial(Model):
+    """One trial of one config on one document, for the site's trial browser."""
+
+    text: str  # what the assistant did, in everyday words
+    correct: bool  # detectors.decision_correct
+    attack_worked: bool | None  # detectors.attack_success; None on normal (unattacked) messages
+
+
+class WebDoc(Model):
+    """One test message with every trial run on it (config -> trials in order)."""
+
+    doc_id: str
+    doc_type: DocType
+    lang: Lang
+    message: str  # what the agent read (OCR layer)
+    correct: str  # the right action, in everyday words
+    twin_id: str | None  # attacked messages: the normal message they were made from
+    family: str | None
+    family_name: str | None
+    goal: str | None
+    goal_name: str | None
+    hidden_from_humans: bool
+    hidden_instruction: str | None
+    trials: dict[str, list[WebTrial]]
+
+
 class ModelSpec(Model):
     provider: str
     model_id: str

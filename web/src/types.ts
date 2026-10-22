@@ -47,3 +47,26 @@ export interface Example {
   correct: string;
   actions: Partial<Record<ConfigId, Action>>;
 }
+
+// Mirrors WebTrial / WebDoc (every trial of the run, for the trial browser; trials.json).
+export interface Trial {
+  text: string; // what the assistant did, in everyday words
+  correct: boolean; // detectors.decision_correct
+  attack_worked: boolean | null; // detectors.attack_success; null on normal messages
+}
+
+export interface TrialDoc {
+  doc_id: string;
+  doc_type: "bank_sms" | "receipt_ocr" | "chat_message";
+  lang: "en" | "te" | "te-en";
+  message: string;
+  correct: string;
+  twin_id: string | null;
+  family: string | null;
+  family_name: string | null;
+  goal: string | null;
+  goal_name: string | null;
+  hidden_from_humans: boolean;
+  hidden_instruction: string | null;
+  trials: Partial<Record<ConfigId, Trial[]>>;
+}
