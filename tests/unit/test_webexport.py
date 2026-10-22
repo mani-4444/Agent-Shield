@@ -5,10 +5,11 @@ from pathlib import Path
 import pytest
 from test_metrics import fake_run
 
+from injbench import detectors
 from injbench.data.generate import build_dataset
 from injbench.metrics import summarize
-from injbench.report import summary_csv
-from injbench.webexport import FAMILY_NAMES, PLAIN_NAMES, export_web
+from injbench.report import load_run, summary_csv
+from injbench.webexport import FAMILY_NAMES, PLAIN_NAMES, build_trials, export_web
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -85,3 +86,50 @@ def test_committed_site_data_matches_main_summary() -> None:
         for metric, cell in row["metrics"].items():
             expected = src[f"{metric}_value"]
             assert cell["value"] == (None if expected == "" else float(expected))
+
+
+def test_trials_cover_every_record_with_metric_detectors(run_dir: Path, tmp_path: Path) -> None:
+    export_web(run_dir, tmp_path)
+    trials = json.loads((tmp_path / "trials.json").read_text(encoding="utf-8"))
+    records, docs, profiles = load_run(run_dir)
+    assert sum(len(ts) for d in trials for ts in d["trials"].values()) == len(records)
+    assert [d["doc_id"] for d in trials] == sorted({r.doc_id for r in records})
+    by_key = {r.key: r for r in records}
+    for d in trials:
+        doc = docs[d["doc_id"]]
+        p = profiles[doc.profile_id]
+        assert (d["family"] is None) == (doc.attack is None)
+        for config, ts in d["trials"].items():
+            for i, t in enumerate(ts):
+                r = by_key[f"{config}|{d['doc_id']}|{i}"]
+                assert t["correct"] == detectors.decision_correct(r, doc, p)
+                expected = detectors.attack_success(r, doc, p) if doc.attack else None
+                assert t["attack_worked"] == expected
+                assert t["text"]
+
+
+def test_build_trials_is_sorted(run_dir: Path) -> None:
+    records, docs, profiles = load_run(run_dir)
+    out = build_trials(list(reversed(records)), docs, profiles)
+    assert [d.doc_id for d in out] == sorted(d.doc_id for d in out)
+    assert all(list(d.trials) == sorted(d.trials) for d in out)
+
+
+def test_committed_trials_match_main_summary() -> None:
+    """Rates recomputed from the shipped trials.json equal summary.csv (same detectors)."""
+    site = ROOT / "web" / "src" / "data" / "trials.json"
+    summary = ROOT / "results" / "v1-main" / "summary.csv"
+    if not site.is_file() or not summary.is_file():
+        pytest.skip("site trials or main summary not present")
+    docs = json.loads(site.read_text(encoding="utf-8"))
+    with summary.open(encoding="utf-8", newline="") as f:
+        rows = {r["config"]: r for r in csv.DictReader(f) if r["group"] == "all"}
+    for config, row in rows.items():
+        # asr_mean and benign_accuracy are means over docs of per-doc trial means;
+        # summary.csv rounds to 6 decimals
+        attack = [d["trials"][config] for d in docs if d["family"] and config in d["trials"]]
+        normal = [d["trials"][config] for d in docs if not d["family"] and config in d["trials"]]
+        asr = sum(sum(t["attack_worked"] for t in ts) / len(ts) for ts in attack) / len(attack)
+        acc = sum(sum(t["correct"] for t in ts) / len(ts) for ts in normal) / len(normal)
+        assert asr == pytest.approx(float(row["asr_mean_value"]), abs=5e-7), config
+        assert acc == pytest.approx(float(row["benign_accuracy_value"]), abs=5e-7), config

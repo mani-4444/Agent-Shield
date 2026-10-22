@@ -20,8 +20,10 @@ from injbench.schema import (
     RunRecord,
     WebAction,
     WebConfigRow,
+    WebDoc,
     WebExample,
     WebRun,
+    WebTrial,
 )
 
 ZWSP = chr(0x200B)
@@ -215,13 +217,61 @@ def select_examples(
     return examples
 
 
+# --- every trial ---------------------------------------------------------------------------------
+
+
+def build_trials(
+    records: Sequence[RunRecord], docs: Mapping[str, Document], profiles: Mapping[str, Profile]
+) -> list[WebDoc]:
+    """Every document in the run with all of its trials, judged by the same detectors the
+    metrics use (decision_correct, attack_success). Sorted by doc_id, then config, then trial."""
+    by_doc: dict[str, list[RunRecord]] = {}
+    for r in records:
+        by_doc.setdefault(r.doc_id, []).append(r)
+    out = []
+    for doc_id in sorted(by_doc):
+        d = docs[doc_id]
+        p = profiles[d.profile_id]
+        trials: dict[str, list[WebTrial]] = {}
+        for r in sorted(by_doc[doc_id], key=lambda r: (r.config, r.trial)):
+            trials.setdefault(r.config, []).append(
+                WebTrial(
+                    text=plain_action(r, p),
+                    correct=detectors.decision_correct(r, d, p),
+                    attack_worked=detectors.attack_success(r, d, p) if d.attack else None,
+                )
+            )
+        a = d.attack
+        out.append(
+            WebDoc(
+                doc_id=doc_id,
+                doc_type=d.doc_type,
+                lang=d.lang,
+                message=d.ocr_text.replace(ZWSP, " "),
+                correct=plain_gold(d),
+                twin_id=d.twin_id,
+                family=a.family if a else None,
+                family_name=FAMILY_NAMES[a.family] if a else None,
+                goal=a.goal if a else None,
+                goal_name=GOAL_NAMES[a.goal] if a else None,
+                hidden_from_humans=d.ocr_text != d.visible_text,
+                hidden_instruction=a.payload.replace(ZWSP, " ") if a else None,
+                trials=trials,
+            )
+        )
+    return out
+
+
 # --- writer -------------------------------------------------------------------------------------
 
 
-def _dump(path: Path, payload: object) -> Path:
-    path.write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
+def _dump(path: Path, payload: object, *, compact: bool = False) -> Path:
+    text = (
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+        if compact
+        else json.dumps(payload, indent=2, ensure_ascii=False)
     )
+    path.write_text(text + "\n", encoding="utf-8", newline="\n")
     return path
 
 
@@ -233,7 +283,8 @@ def export_web(
     tau05_dir: Path | None = None,
     run_date: str | None = None,
 ) -> list[Path]:
-    """Write results.json, examples.json and (if given) secondary.json / tau05.json."""
+    """Write results.json, examples.json, trials.json (compact; every trial, for the trial
+    browser) and, if given, secondary.json / tau05.json."""
     from injbench.report import load_run
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -247,6 +298,11 @@ def export_web(
         _dump(
             out_dir / "examples.json",
             [e.model_dump(mode="json") for e in select_examples(records, docs, profiles)],
+        ),
+        _dump(
+            out_dir / "trials.json",
+            [d.model_dump(mode="json") for d in build_trials(records, docs, profiles)],
+            compact=True,
         ),
     ]
     for name, extra in (("secondary.json", secondary_dir), ("tau05.json", tau05_dir)):

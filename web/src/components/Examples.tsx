@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { CircleCheck } from "lucide-react";
+import { ChevronRight, CircleCheck } from "lucide-react";
 import { useRef, useState, type KeyboardEvent } from "react";
 import { CONFIG_ORDER, examples, headline, results } from "../data";
 import { EASE_OUT, Reveal } from "../motion";
@@ -111,6 +111,15 @@ export function Examples() {
             </motion.div>
             </AnimatePresence>
           </div>
+          <p className="mt-6 text-center text-muted">
+            These are {examples.length} of {results.n_docs} messages.{" "}
+            <a href="#/trials" className="group inline-flex items-center text-accent">
+              <span className="group-hover:underline">
+                Browse every message and all {results.n_records.toLocaleString("en-IN")} trials
+              </span>
+              <ChevronRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+            </a>
+          </p>
         </Reveal>
       </div>
     </section>

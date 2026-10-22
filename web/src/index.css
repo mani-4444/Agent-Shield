@@ -55,6 +55,11 @@
   --card-shadow: 0 2px 12px oklch(0% 0 0 / 0.06);
   --card-highlight: transparent;
   --card-shadow-hover: 0 2px 4px oklch(0% 0 0 / 0.04), 0 18px 40px -12px oklch(0% 0 0 / 0.16);
+  --glass-bg: oklch(100% 0 0 / 0.62);
+  --glass-edge: oklch(100% 0 0 / 0.75);
+  --glass-shine: oklch(100% 0 0 / 0.9);
+  --glass-shadow: 0 10px 30px -10px oklch(20% 0.01 286 / 0.25), 0 1px 3px oklch(20% 0.01 286 / 0.12);
+  --glass-pill: oklch(0% 0 0 / 0.07);
 }
 
 :root[data-theme="dark"] {
@@ -82,6 +87,11 @@
   --card-shadow: none;
   --card-highlight: transparent;
   --card-shadow-hover: 0 18px 44px -14px oklch(55% 0.2 258 / 0.35);
+  --glass-bg: oklch(24% 0.004 286 / 0.55);
+  --glass-edge: oklch(100% 0 0 / 0.14);
+  --glass-shine: oklch(100% 0 0 / 0.28);
+  --glass-shadow: 0 12px 36px -10px oklch(0% 0 0 / 0.7), 0 1px 2px oklch(0% 0 0 / 0.5);
+  --glass-pill: oklch(100% 0 0 / 0.12);
 }
 
 @theme inline {
@@ -211,6 +221,45 @@ dd {
     translate: 0 -4px;
     border-color: var(--border-strong);
     box-shadow: var(--card-shadow-hover);
+  }
+}
+
+/*
+ * Liquid glass (iOS style): translucent, heavily blurred and saturated, a light edge, and a
+ * specular highlight along the top. Solid when the visitor asks for reduced transparency.
+ */
+/* No `position` here: this rule is unlayered and would override Tailwind's fixed/relative. */
+.glass {
+  isolation: isolate;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 var(--glass-shine),
+    inset 0 -1px 0 oklch(0% 0 0 / 0.08),
+    var(--glass-shadow);
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 140% at 20% -40%, oklch(100% 0 0 / 0.22), transparent 55%),
+    radial-gradient(80% 120% at 100% 140%, oklch(100% 0 0 / 0.08), transparent 60%);
+}
+.glass-pill {
+  background: var(--glass-pill);
+  box-shadow: inset 0 1px 0 var(--glass-shine);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 

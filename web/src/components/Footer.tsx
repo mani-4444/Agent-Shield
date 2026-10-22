@@ -4,7 +4,7 @@ import { GithubIcon } from "./GithubIcon";
 export function Footer() {
   return (
     <footer className="border-t border-line bg-band">
-      <div className="wrapper grid gap-8 py-12 text-sm text-muted md:grid-cols-[1fr_auto]">
+      <div className="wrapper grid gap-8 pt-12 pb-32 text-sm text-muted md:grid-cols-[1fr_auto] md:pb-12">
         <div className="max-w-[44rem] space-y-3">
           <p className="flex items-center gap-2.5 font-serif text-lg font-medium text-ink">
             <img src={`${import.meta.env.BASE_URL}logo-128.png`} alt="" width={32} height={32} className="size-8" />
