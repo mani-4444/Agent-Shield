@@ -7,7 +7,7 @@ export function Footer() {
     <footer className="border-t border-line bg-band">
       <div className="wrapper grid gap-8 py-12 text-sm text-muted md:grid-cols-[1fr_auto]">
         <div className="max-w-[44rem] space-y-3">
-          <p className="flex items-center gap-2.5 text-base font-semibold text-ink">
+          <p className="flex items-center gap-2.5 font-serif text-lg font-medium text-ink">
             <ShieldCheck className="size-5" aria-hidden="true" />
             Agent Shield
           </p>

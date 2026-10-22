@@ -27,7 +27,7 @@ export function Nav() {
       }`}
     >
       <nav className="wrapper flex h-14 items-center justify-between gap-4" aria-label="Main">
-        <a href="#top" className="flex items-center gap-2.5 font-semibold tracking-tight text-ink">
+        <a href="#top" className="flex items-center gap-2.5 font-serif text-lg font-medium text-ink">
           <ShieldCheck className="size-5" aria-hidden="true" />
           Agent Shield
         </a>
