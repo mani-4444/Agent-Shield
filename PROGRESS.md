@@ -1,7 +1,7 @@
 # Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T19 session
 
 ## Current state
-**Paused by the human at 22:10 on 2026-10-21.** `v1-main` (full test run) stopped at 4,044/6,000 records, 0 errors: configs a, b, c complete, d at ~442/1200, e not started. **To resume:** run `C:/Users/MANIDEEP/AppData/Local/Temp/claude/d--Projects-Agent-Shield/354a1a2a-b315-4578-9020-01bc86bfdbad/scratchpad/t15_run.ps1` again (or `"y" | uv run injbench eval --config all --split test --trials 3 --run-id v1-main` with `HF_HOME=D:/hf-cache`); it skips finished trials (~85 min of (d) left, (e) mostly cache), then builds `v1-main-t05` and both reports. `v1-secondary` is complete (160/160, 0 errors after retries).
+**T15 done (2026-10-22 10:46).** `v1-main`: 6,000 records, 0 errors; `v1-main-t05` (tau 0.5): 2,400 records from cache; replay + report regenerates `summary.csv` byte-identical (AC-11 on the real run). README results filled from `summary.md` (every number checked against the summaries). T18 label sheet ready: `results/v1-main/label_sheet.csv` (60 trials, 12 per config, 20 per goal) waits for the human.
 
 ## Gates
 | Gate | Stage | Where | Status |
@@ -28,7 +28,7 @@
 | F10 | Runner (resume, replay) | T12 | done (AC-10, AC-11 green) |
 | F11 | Metrics with cluster bootstrap | T13 | done (AC-12 green) |
 | F12 | Pilot + freeze | T14 | done (gate signed 2026-10-21) |
-| F13 | Full test run | T15 | running (started 2026-10-21 12:22) |
+| F13 | Full test run | T15 | done 2026-10-22 (6,000 records, 0 errors) |
 | F14 | AgentDojo subset (stretch) | T16 | todo |
 | F15 | Report, label check, dashboard | T17–T19 | code done (AC-13/14/15 green); hand labels at T18 need the human |
 | F16 | README, demo, review, release | T20–T21 | todo |
@@ -48,9 +48,9 @@
 - (none; since 2026-10-20 the agent commits without asking, merges still go through the human)
 
 ## Next up
-1. When T15 finishes: check `results/t15.console.log` and record counts / errors (errors: re-run with `--retry-errors`); commit `results/v1-main/` summaries and charts (records stay ignored); same for `v1-main-t05` and `v1-secondary`.
-2. T18: `uv run injbench label-sample --run results/v1-main`, the human labels 60 trials, then `label-score` (AC-15's real gate).
-3. T20 README (numbers only from `summary.md`) + 2-minute demo; T21 fresh-context review; tag `v1.0`.
+1. **Human, T18:** open `results/v1-main/label_sheet.csv`, fill `human_attack_success` (yes/no) for the 60 rows, then `uv run injbench label-score --run results/v1-main` (target >= 95% agreement; AC-15's real gate).
+2. **Human:** record the 2-minute demo (PLAN.md "Demo script"; dashboard: `uv run streamlit run app/dashboard.py`), add its link to the README; pick a license (SPEC open question 8).
+3. Agent: T21 fresh-context review against SPEC ACs; then the human reviews with the checklist, merges the PR and tags `v1.0`.
 
 ## Decisions made
 - Size Large, trimmed: five planning docs only; no separate ADR, threat-model or prompt files.
@@ -127,6 +127,7 @@
 - T15 setup (2026-10-21): runs are launched as detached PowerShell processes (they survive the agent session ending, which killed the first pilot) that hold `SetThreadExecutionState(ES_CONTINUOUS|ES_SYSTEM_REQUIRED)` so Windows does not sleep; the full-test-split confirmation prompt is answered "y" in the script per the human's approval. `eval` gained `--model primary|secondary` and `--retry-errors` (re-run provider failures; `no_decision` is kept as model behaviour).
 - T15 secondary (2026-10-21): first pass finished 160/160 but 48 trials (42 in (d), 6 in (a)) hit Groq's daily token cap (200K TPD; (a) used ~2.5K tokens/trial on Groq vs ~2K estimated). A detached loop re-runs only those with `--retry-errors` every 20 min (up to 12 rounds) as the quota refills, then rebuilds the report. Do not use the v1-secondary summary until provider errors are 0.
 - T15 secondary done (2026-10-21 17:16): all 48 quota failures succeeded on retry (6 rounds). Result (80 test docs x 1 trial, Groq qwen/qwen3.8-27b): ASR (a) 17.5% [7.5, 30.0] vs (d) 5.0% [0.0, 12.5]; benign accuracy 97.5% vs 100%.
+- T15 main (2026-10-22): resumed after the overnight pause; v1-main eval exit 0 at 10:46. The scripted follow-up (tau 0.5 run + reports) did not run (the job ended after the main eval), so it was run by hand at 11:28: 2,400 records, 2,286 cache hits. Headline ASR: (a) 26.7% [20.8, 33.0], (b) 20.2%, (c) 8.5%, (d) 3.5% [1.0, 6.5], (e) 2.5%; benign accuracy (a) 71.8%, (d) 97.0%; classifier FPR 2.0% on test (dev target 5%). At tau 0.5 (c) gives 22.2%. (d)'s residual risk is G2 redirect 10.9% (schema-valid fact poisoning, as hypothesised in SPEC Part 3). README wording avoids claims the CIs do not support.
 
 ## Known issues / blockers
 - Telugu strings, F4 templates and a sample of `data/v1/test.jsonl` reviewed by the human on 2026-10-20 ("okay").
