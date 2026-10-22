@@ -1,4 +1,4 @@
-# InjectionBench — Design and Key Decisions
+# Agent Shield — Design and Key Decisions
 
 The *how*. What and why: SPEC.md (incl. threat model) · Tasks: PLAN.md · Agent rules: AGENTS.md
 Sections: 1 Architecture · 2 Layout · 3 Data model · 4 Decision policy · 5 Attacks · 6 Configs · 7 LLM adapter · 8 Runner · 9 Metrics · 10 Report · 11 Key decisions (ADRs) · 12 Interfaces fixed by the acceptance suite · Appendix A policy prompt
@@ -32,7 +32,7 @@ Trusted: profile, policy, code, tools. Untrusted: everything inside a document's
 ## 2. Repository layout
 
 ```
-injectionbench/
+agent-shield/
   AGENTS.md SPEC.md DESIGN.md PLAN.md PROGRESS.md   (the only planning docs)
   CLAUDE.md -> AGENTS.md (symlink)   README.md (written at T20)
   pyproject.toml  uv.lock  .env.example  .gitignore

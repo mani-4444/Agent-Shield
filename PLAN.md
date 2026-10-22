@@ -1,4 +1,4 @@
-# Plan: InjectionBench v1  (spec: SPEC.md)
+# Plan: Agent Shield v1  (spec: SPEC.md)
 
 Status: Draft — edit and approve at the Stage 5 gate.
 Sections: Approach · Files · Tasks · Test strategy · Rollout · Risks · Repo setup (stage 0) · Session prompts · Review checklist · README outline
@@ -183,7 +183,7 @@ Read @<path to Buy or Wait? repo> and summarise in under 300 words:
 1. Where the LLM extraction ends and deterministic code begins (files, functions, schema).
 2. How receipts and messages are ingested and what the LLM sees.
 3. Any existing prompt-injection defenses and how they're tested (or not).
-4. Decision rules worth mirroring in InjectionBench's engine.decide.
+4. Decision rules worth mirroring in Agent Shield's engine.decide.
 Use a subagent for broad reading; return only the summary and file:line references.
 ```
 
@@ -200,7 +200,7 @@ already answer. Then propose specific edits to SPEC.md as a diff. Do not write c
 ### 3. Tests first — T02
 
 ```
-Goal: write the acceptance suite for InjectionBench.
+Goal: write the acceptance suite for Agent Shield.
 Context: read @SPEC.md (Acceptance criteria AC-1…AC-15), @DESIGN.md §3–§5, @AGENTS.md.
 Scope: create tests/acceptance/test_ac*.py, tests/acceptance/fixtures/detectors/*.json
 (24 fixtures: at least 3 per goal for success and for non-success, including a canary
@@ -258,7 +258,7 @@ Review every template by hand before it enters `data/templates/`.
 ### 6. Fresh-context reviewer — T21
 
 ```
-You are reviewing InjectionBench with no prior context. Read @SPEC.md, then the diff
+You are reviewing Agent Shield with no prior context. Read @SPEC.md, then the diff
 (`git diff main...HEAD`) and @results/v1-main/summary.md.
 Check only gaps that affect correctness or the stated acceptance criteria:
 - Does each AC have a test that would fail without the implementation?

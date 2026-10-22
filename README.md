@@ -1,4 +1,4 @@
-# InjectionBench
+# Agent Shield
 
 An indirect prompt-injection benchmark for document-reading finance agents: 400 paired documents,
 6 attack families, 3 attacker goals, 5 defenses, measured with 95% confidence intervals.

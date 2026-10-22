@@ -1,4 +1,4 @@
-# InjectionBench results: v1-main-t05
+# Agent Shield results: v1-main-t05
 
 2400 records · 400 documents · 3 trial(s) per (config, document) · models: qwen3:8b.
 Values are point estimates with 95% cluster-bootstrap CIs over documents. Cells built on fewer than 30 documents are marked (low n).

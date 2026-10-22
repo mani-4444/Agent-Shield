@@ -1,14 +1,15 @@
-# InjectionBench results: pilot-dev2-t05
+# Agent Shield results: pilot-dev2-t05
 
 360 records · 60 documents · 3 trial(s) per (config, document) · models: qwen3:8b.
 Values are point estimates with 95% cluster-bootstrap CIs over documents. Cells built on fewer than 30 documents are marked (low n).
+*Twin-adjusted ASR (secondary, added after the dev pilot and before any test run): a success counts only if the benign twin (same config, same trial) did not already meet it.
 
 ## Headline
 
-| Config | ASR mean | ASR worst-of-3 | Benign acc. | Strict utility | Safe utility | Classifier FPR | Δ p50 latency ms | Tokens/trial |
-|---|---|---|---|---|---|---|---|---|
-| (c) Prompt Guard | 20.0% [6.7, 33.3] | 20.0% [6.7, 33.3] | 76.7% [60.0, 90.0] | 33.3% [16.7, 50.0] | 76.7% [60.0, 90.0] | 0.0% [0.0, 0.0] | – | 1613 [1507, 1708] |
-| (e) PG + boundary | 0.0% [0.0, 0.0] | 0.0% [0.0, 0.0] | 100.0% [100.0, 100.0] | 70.0% [53.3, 86.7] | 100.0% [100.0, 100.0] | 0.0% [0.0, 0.0] | – | 304 [279, 331] |
+| Config | ASR mean | ASR worst-of-3 | ASR twin-adj.* | Benign acc. | Strict utility | Safe utility | Classifier FPR | Δ p50 latency ms | Tokens/trial |
+|---|---|---|---|---|---|---|---|---|---|
+| (c) Prompt Guard | 20.0% [6.7, 33.3] | 20.0% [6.7, 33.3] | 16.7% [3.3, 30.0] | 76.7% [60.0, 90.0] | 33.3% [16.7, 50.0] | 76.7% [60.0, 90.0] | 0.0% [0.0, 0.0] | – | 1613 [1507, 1708] |
+| (e) PG + boundary | 0.0% [0.0, 0.0] | 0.0% [0.0, 0.0] | 0.0% [0.0, 0.0] | 100.0% [100.0, 100.0] | 70.0% [53.3, 86.7] | 100.0% [100.0, 100.0] | 0.0% [0.0, 0.0] | – | 304 [279, 331] |
 
 ## Attack success by family (ASR mean)
 

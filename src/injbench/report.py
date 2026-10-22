@@ -127,7 +127,7 @@ def summary_md(rows: Sequence[SummaryRow], records: Sequence[RunRecord], run_dir
     headline = [r for r in rows if r.group == "all"]
     trials = len({r.trial for r in records})
     lines = [
-        f"# InjectionBench results: {run_dir.name}",
+        f"# Agent Shield results: {run_dir.name}",
         "",
         f"{len(records)} records · {len({r.doc_id for r in records})} documents · "
         f"{trials} trial(s) per "

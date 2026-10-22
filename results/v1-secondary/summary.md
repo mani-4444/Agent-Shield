@@ -1,4 +1,4 @@
-# InjectionBench results: v1-secondary
+# Agent Shield results: v1-secondary
 
 160 records · 80 documents · 1 trial(s) per (config, document) · models: qwen/qwen3.8-27b.
 Values are point estimates with 95% cluster-bootstrap CIs over documents. Cells built on fewer than 30 documents are marked (low n).

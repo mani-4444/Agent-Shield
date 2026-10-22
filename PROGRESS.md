@@ -1,4 +1,4 @@
-# Progress: InjectionBench v1   Last updated: 2026-10-20 by T01–T19 session
+# Progress: Agent Shield v1   Last updated: 2026-10-20 by T01–T19 session
 
 ## Current state
 **T15 done (2026-10-22 10:46).** `v1-main`: 6,000 records, 0 errors; `v1-main-t05` (tau 0.5): 2,400 records from cache; replay + report regenerates `summary.csv` byte-identical (AC-11 on the real run). README results filled from `summary.md` (every number checked against the summaries). T18 label sheet ready: `results/v1-main/label_sheet.csv` (60 trials, 12 per config, 20 per goal) waits for the human.
@@ -128,6 +128,9 @@
 - T15 secondary (2026-10-21): first pass finished 160/160 but 48 trials (42 in (d), 6 in (a)) hit Groq's daily token cap (200K TPD; (a) used ~2.5K tokens/trial on Groq vs ~2K estimated). A detached loop re-runs only those with `--retry-errors` every 20 min (up to 12 rounds) as the quota refills, then rebuilds the report. Do not use the v1-secondary summary until provider errors are 0.
 - T15 secondary done (2026-10-21 17:16): all 48 quota failures succeeded on retry (6 rounds). Result (80 test docs x 1 trial, Groq qwen/qwen3.8-27b): ASR (a) 17.5% [7.5, 30.0] vs (d) 5.0% [0.0, 12.5]; benign accuracy 97.5% vs 100%.
 - T15 main (2026-10-22): resumed after the overnight pause; v1-main eval exit 0 at 10:46. The scripted follow-up (tau 0.5 run + reports) did not run (the job ended after the main eval), so it was run by hand at 11:28: 2,400 records, 2,286 cache hits. Headline ASR: (a) 26.7% [20.8, 33.0], (b) 20.2%, (c) 8.5%, (d) 3.5% [1.0, 6.5], (e) 2.5%; benign accuracy (a) 71.8%, (d) 97.0%; classifier FPR 2.0% on test (dev target 5%). At tau 0.5 (c) gives 22.2%. (d)'s residual risk is G2 redirect 10.9% (schema-valid fact poisoning, as hypothesised in SPEC Part 3). README wording avoids claims the CIs do not support.
+- 2026-10-22 (human): project name is **Agent Shield**. Renamed in every human-facing place (README, dashboard, report titles, CLI help, planning docs) and the distribution name (`agent-shield`). The Python package and CLI stay `injbench` because the protected acceptance tests import it.
+- 2026-10-22 (human: the dashboard was too technical): new first tab **Overview** for non-technical readers: plain question, three headline numbers ("27 in 100" attacks worked with no protection vs 3 in 100 with detector + fact-checker), two bar charts with plain names, what each protection does, a real example from the run (hidden instruction, what each assistant did), glossary. Numbers come from the run's summary.csv; Results/Explorer/Live demo tabs unchanged.
+- 2026-10-22: the T15 script's tau 0.5 step hung on the quota confirmation (the script answered "y" only for the main run); the stuck process was found and stopped, after which the script rebuilt both reports. The tau 0.5 results come from the manual run at 11:28.
 
 ## Known issues / blockers
 - Telugu strings, F4 templates and a sample of `data/v1/test.jsonl` reviewed by the human on 2026-10-20 ("okay").

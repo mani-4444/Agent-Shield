@@ -1,4 +1,4 @@
-# InjectionBench: Agent instructions
+# Agent Shield: Agent instructions
 
 A benchmark that attacks a finance-style document-reading agent with indirect prompt injections and measures five defenses. It is a *measurement* project: the one constraint you can't infer from the code is that metric definitions, detectors and the test split are frozen (see SPEC.md "Pre-registration rule"). Never change them to improve a result.
 

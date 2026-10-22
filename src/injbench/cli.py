@@ -15,7 +15,7 @@ app = typer.Typer(name="injbench", no_args_is_help=True)
 
 @app.callback()
 def main() -> None:
-    """InjectionBench: indirect prompt-injection benchmark for finance agents."""
+    """Agent Shield: indirect prompt-injection benchmark for finance agents."""
 
 
 @app.command()
