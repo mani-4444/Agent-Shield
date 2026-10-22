@@ -107,7 +107,7 @@ benign twin already showed (model mistakes the attack did not cause).
   400 test messages and all 6,000 trials, with filters (trick, goal, language, defense, outcome),
   a live tally, and what each defense did on each try. Judged by the same detectors as the metrics;
   a unit test recomputes the headline rates from it and checks them against `summary.csv`.
-- **[Raw results](https://github.com/mani-4444/Agent-Shield/releases)** (GitHub Releases): the
+- **[Raw results](https://github.com/mani-4444/Agent-Shield/releases/tag/results-v1)** (GitHub Release `results-v1`): the
   full `records.jsonl` and the LLM response cache, for re-scoring or `--replay` without a model.
 - **Analysis dashboard** (`app/dashboard.py`, Streamlit): for developers. Plain-language overview,
   full results, a per-trial explorer and a live (a) vs (e) demo that runs the agent locally.
@@ -118,8 +118,8 @@ benign twin already showed (model mistakes the attack did not cause).
 uv sync
 uv run pytest -q                                    # offline: unit + acceptance tests
 uv run injbench data --seed 2026 --out data/v1      # regenerates data/v1 byte for byte
-# replay from cached responses (no keys, no network; unpack the release's cache archive into
-# .cache/ first), then rebuild the report:
+# replay from cached responses (no keys, no network; first unpack both archives from the
+# results-v1 release at the repo root), then rebuild the report:
 uv run injbench eval --config all --split test --trials 3 --run-id v1-main --replay
 uv run injbench report --run results/v1-main
 uv run streamlit run app/dashboard.py              # analysis dashboard

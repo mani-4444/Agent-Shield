@@ -21,7 +21,7 @@ export const CONFIG_COLOR: Record<ConfigId, string> = {
 };
 
 export const REPO_URL = "https://github.com/mani-4444/Agent-Shield";
-export const RELEASES_URL = `${REPO_URL}/releases`;
+export const RELEASES_URL = `${REPO_URL}/releases/tag/results-v1`;
 
 /** Every trial of the main run (about 0.8 MB); a separate chunk, loaded only by the trial browser. */
 export function loadTrials(): Promise<TrialDoc[]> {
