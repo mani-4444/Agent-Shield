@@ -1,6 +1,7 @@
 {
   "name": "agent-shield-site",
   "private": true,
+  "license": "MIT",
   "version": "1.0.0",
   "type": "module",
   "description": "Agent Shield showcase site: static, built from the run's exported data.",

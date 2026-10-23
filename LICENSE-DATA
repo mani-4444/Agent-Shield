@@ -1,0 +1,27 @@
+Agent Shield data and results
+Copyright (c) 2026 Munjampally Manideep
+
+The dataset and results of this project are licensed under the Creative Commons
+Attribution 4.0 International License (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/
+Full legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+
+This covers:
+- data/                  generated test and dev messages, profiles and manifest
+- results/               run summaries, reports, charts and hand-label sheets
+- web/src/data/          the site's exported run data
+- the assets of the GitHub Release "results-v1" (raw trial records and model cache)
+
+You may share and adapt this material for any purpose, including commercially,
+as long as you give appropriate credit, for example:
+"Agent Shield (Munjampally Manideep, 2026), https://github.com/mani-4444/Agent-Shield"
+
+Notes
+- All names, phone numbers, UPI IDs, account numbers and canary secrets in the data
+  are synthetic. None refer to real people or accounts.
+- The attack messages are for evaluating defenses. Do not send them to real
+  services or use them against systems you do not own.
+- Recorded model outputs come from Qwen3 models (Apache-2.0). Prompt Guard 2 scores
+  were produced with Meta's Llama Prompt Guard 2 under the Llama license; its
+  weights are not included here.
+- Source code is licensed separately under the MIT License (see LICENSE).

@@ -164,4 +164,12 @@ was scored.
 
 Synthetic identifiers only: phone numbers start `+91 0`, UPI IDs end in `@fakepay` or
 `@examplebank`, secrets start `CANARY-`. Intended for evaluating defenses, teaching and
-reproduction, not for attacking real services or certifying any product. License: TBD.
+reproduction, not for attacking real services or certifying any product.
+
+## License
+
+- **Code:** [MIT](LICENSE).
+- **Data and results** (`data/`, `results/`, `web/src/data/` and the `results-v1` release):
+  [CC BY 4.0](LICENSE-DATA). Reuse freely with credit.
+
+Prompt Guard 2 is used under Meta's Llama license; its weights are not redistributed here.
