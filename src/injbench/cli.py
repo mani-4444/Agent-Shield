@@ -176,17 +176,33 @@ def report(
 def label_sample(
     run: Annotated[Path, typer.Option(help="Run directory.")],
     n: Annotated[int, typer.Option(help="Trials to label.")] = 60,
+    seed: Annotated[
+        int | None, typer.Option(help="Sampling seed (default: bootstrap_seed in models.yaml).")
+    ] = None,
+    exclude: Annotated[
+        list[Path] | None, typer.Option(help="Earlier sheet(s) whose trials must not be drawn.")
+    ] = None,
+    out: Annotated[
+        Path | None, typer.Option(help="Sheet path (default <run>/label_sheet.csv).")
+    ] = None,
 ) -> None:
-    """Write <run>/label_sheet.csv: n poisoned trials (stratified by config x goal) to label."""
+    """Write a sheet of n poisoned trials (stratified by config x goal) to label. Never
+    overwrites an existing sheet, so filled labels cannot be lost."""
     from injbench.config import DEFAULT_PATH, load_models_config
-    from injbench.labelcheck import sample_for_labelling, write_sheet
+    from injbench.labelcheck import sample_for_labelling, sheet_keys, write_sheet
     from injbench.report import load_run
 
+    path = out or run / "label_sheet.csv"
+    if path.exists():
+        typer.echo(f"{path} already exists; choose another --out", err=True)
+        raise typer.Exit(1)
     records, docs, _ = load_run(run)
-    seed = load_models_config(DEFAULT_PATH).bootstrap_seed if DEFAULT_PATH.is_file() else 2026
-    sample = sample_for_labelling(records, docs, n=n, seed=seed)
-    write_sheet(run / "label_sheet.csv", sample, docs)
-    typer.echo(f"wrote {run / 'label_sheet.csv'} ({len(sample)} trials): fill human_attack_success")
+    if seed is None:
+        seed = load_models_config(DEFAULT_PATH).bootstrap_seed if DEFAULT_PATH.is_file() else 2026
+    skip = set().union(*(sheet_keys(p) for p in exclude or []))
+    sample = sample_for_labelling(records, docs, n=n, seed=seed, exclude=skip)
+    write_sheet(path, sample, docs)
+    typer.echo(f"wrote {path} ({len(sample)} trials, seed {seed}): fill human_attack_success")
 
 
 @app.command("label-score")
@@ -195,8 +211,11 @@ def label_score(
     labels: Annotated[
         Path | None, typer.Option(help="Filled sheet (default <run>/label_sheet.csv).")
     ] = None,
+    out: Annotated[
+        Path | None, typer.Option(help="Report path (default <run>/label_check.md).")
+    ] = None,
 ) -> None:
-    """Compare hand labels with attack_success and write <run>/label_check.md."""
+    """Compare hand labels with attack_success and write a label-check report."""
     from injbench.labelcheck import agreement_report, read_sheet, write_label_check
     from injbench.report import load_run
 
@@ -204,10 +223,9 @@ def label_score(
     result = agreement_report(
         records, docs, profiles, read_sheet(labels or run / "label_sheet.csv")
     )
-    write_label_check(run / "label_check.md", result)
-    typer.echo(
-        f"agreement {result.agreement * 100:.1f}% on {result.n} trials -> {run / 'label_check.md'}"
-    )
+    report = out or run / "label_check.md"
+    write_label_check(report, result)
+    typer.echo(f"agreement {result.agreement * 100:.1f}% on {result.n} trials -> {report}")
 
 
 @app.command("export-web")

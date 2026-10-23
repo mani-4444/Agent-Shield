@@ -51,7 +51,7 @@ New project; schemas in DESIGN.md §3. Dataset frozen as `data/v1/` with `manife
 
 ### Day 3 — outputs, checks, ship
 - [ ] **T17** `report.py`: summary, Pareto, heatmap, gallery. Verify: `uv run pytest tests/acceptance/test_ac13_report.py -q` and open the PNGs. (AC-13)
-- [ ] **T18** `labelcheck.py`: sample 60 trials, hand-label, compute agreement. Verify: `results/v1-main/label_check.md` shows ≥95%. (AC-15)
+- [x] **T18** `labelcheck.py`: sample 60 trials, hand-label, compute agreement. Verify: `results/v1-main/label_check.md` shows ≥95%. (AC-15)
 - [ ] **T19 [P]** Streamlit dashboard (Results, Explorer, Live demo). Verify: `uv run pytest tests/acceptance/test_ac14_dashboard.py -q` and a manual click-through. (AC-14)
 - [ ] **T19b** Showcase site (added 2026-10-22, DESIGN ADR-4): `injbench export-web` + `web/` React site + GitHub Pages deploy. Verify: `uv run pytest tests/unit/test_webexport.py -q`; `cd web && npm ci && npm run lint && npm run build`; the build's contrast check passes in both themes; screenshots at 360/768/1280/1440 px in light and dark with no horizontal overflow; keyboard pass (skip link, theme toggle, simulator radio groups and example tabs with arrow keys); simulator check: every trick x defense shows the outcome from `examples.json` and the per-100 rate from `results.json`; trial browser check: loads only on `#/trials`, filter counts and tallies equal `trials.json`, no overflow at 360 px; after merge, the live URL loads and its numbers match the README.
 - [ ] **T20** README (outline at the end of this file): fill the eval table *only* from `summary.md`; limitations; credits; record 2-minute demo (baseline fails → (e) holds → table). Verify: every number in README appears in `summary.csv`.
