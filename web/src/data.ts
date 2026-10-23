@@ -11,15 +11,6 @@ export const examples = examplesJson as Example[];
 
 export const CONFIG_ORDER: ConfigId[] = ["a", "b", "c", "d", "e"];
 
-// Validated categorical palette (dataviz checker, dark mode on #0B1120); fixed order everywhere.
-export const CONFIG_COLOR: Record<ConfigId, string> = {
-  a: "#3987e5",
-  b: "#d95926",
-  c: "#199e70",
-  d: "#c98500",
-  e: "#d55181",
-};
-
 export const REPO_URL = "https://github.com/mani-4444/Agent-Shield";
 export const RELEASES_URL = `${REPO_URL}/releases/tag/results-v1`;
 
@@ -48,13 +39,4 @@ export function metric(row: ConfigRow | undefined, key: string): MetricValue | u
 /** Everyday rounding for "x in 100" (2.5 -> 3), not banker's rounding. */
 export function per100(value: number | null | undefined): number | null {
   return value == null ? null : Math.floor(value * 100 + 0.5);
-}
-
-export function pct(value: number | null | undefined, digits = 1): string {
-  return value == null ? "–" : `${(value * 100).toFixed(digits)}%`;
-}
-
-export function ci(m: MetricValue | undefined): string {
-  if (!m || m.lo == null || m.hi == null) return "";
-  return `${(m.lo * 100).toFixed(1)} – ${(m.hi * 100).toFixed(1)}%`;
 }

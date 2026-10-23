@@ -5,10 +5,7 @@ results/*/progress.log
 __pycache__/
 .venv/
 results/*.console.log
-# superseded local runs, kept on disk (deleting results/ needs the human's OK)
+# local smoke runs (AGENTS.md definition of done)
 results/smoke/
-results/pilot-dev-abd/
-results/pilot-dev/
-results/pilot-dev-t05/
 web/node_modules/
 web/dist/
