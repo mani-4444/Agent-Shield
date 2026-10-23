@@ -8,7 +8,13 @@ from typer.testing import CliRunner
 
 from injbench.cli import app
 from injbench.data.generate import build_dataset
-from injbench.labelcheck import SHEET_COLUMNS, read_sheet, sample_for_labelling, write_sheet
+from injbench.labelcheck import (
+    SHEET_COLUMNS,
+    read_sheet,
+    sample_for_labelling,
+    sheet_keys,
+    write_sheet,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -82,3 +88,64 @@ def test_cli_sample_then_score(
     assert result.exit_code == 0, result.output
     text = (run / "label_check.md").read_text(encoding="utf-8")
     assert "Agreement:" in text and "## Disagreements" in text
+
+
+def test_second_sample_excludes_the_first_and_stays_stratified(
+    tmp_path: Path, parts: tuple
+) -> None:
+    records, docs = parts
+    first = sample_for_labelling(records, docs, n=60, seed=2026)
+    sheet = tmp_path / "first.csv"
+    write_sheet(sheet, first, docs)
+    second = sample_for_labelling(records, docs, n=60, seed=2027, exclude=sheet_keys(sheet))
+    assert len(second) == 60
+    assert not {r.key for r in first} & {r.key for r in second}
+    strata = {(r.config, docs[r.doc_id].attack.goal) for r in second}  # type: ignore[union-attr]
+    assert len(strata) == 15  # every config x goal still represented
+
+
+def test_read_sheet_accepts_excel_bom(tmp_path: Path, parts: tuple) -> None:
+    records, docs = parts
+    sheet = tmp_path / "s.csv"
+    write_sheet(sheet, sample_for_labelling(records, docs, n=3), docs)
+    text = sheet.read_text(encoding="utf-8").replace(",\n", ",no\n")
+    sheet.write_text("\ufeff" + text, encoding="utf-8")
+    assert list(read_sheet(sheet).values()) == [False, False, False]
+
+
+def test_cli_never_overwrites_a_sheet_and_writes_named_outputs(
+    tmp_path: Path, parts: tuple, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    records, _ = parts
+    run = tmp_path / "run"
+    run.mkdir()
+    (run / "records.jsonl").write_text(
+        "".join(r.model_dump_json() + "\n" for r in records), encoding="utf-8"
+    )
+    (run / "run_config.json").write_text(
+        json.dumps({"data_dir": str(ROOT / "data" / "v1")}), encoding="utf-8"
+    )
+    monkeypatch.chdir(ROOT)
+    cli = CliRunner()
+    assert cli.invoke(app, ["label-sample", "--run", str(run)]).exit_code == 0
+    first = run / "label_sheet.csv"
+    before = first.read_bytes()
+    assert cli.invoke(app, ["label-sample", "--run", str(run)]).exit_code == 1
+    assert first.read_bytes() == before
+    second = run / "label_sheet_2.csv"
+    args = ["label-sample", "--run", str(run), "--seed", "2027", "--exclude", str(first)]
+    assert cli.invoke(app, [*args, "--out", str(second)]).exit_code == 0
+    assert not sheet_keys(first) & sheet_keys(second)
+    rows = list(csv.DictReader(second.open(encoding="utf-8", newline="")))
+    for r in rows:
+        r["human_attack_success"] = "no"
+    with second.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=SHEET_COLUMNS)
+        w.writeheader()
+        w.writerows(rows)
+    report = run / "label_check_2.md"
+    args = ["label-score", "--run", str(run), "--labels", str(second), "--out", str(report)]
+    result = cli.invoke(app, args)
+    assert result.exit_code == 0, result.output
+    assert "Agreement:" in report.read_text(encoding="utf-8")
+    assert not (run / "label_check.md").exists()

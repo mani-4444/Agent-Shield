@@ -10,7 +10,7 @@ from __future__ import annotations
 import csv
 import json
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from pathlib import Path
 
 from injbench import detectors
@@ -32,13 +32,19 @@ SHEET_COLUMNS = [
 
 
 def sample_for_labelling(
-    records: Sequence[RunRecord], docs: Mapping[str, Document], *, n: int = 60, seed: int = 2026
+    records: Sequence[RunRecord],
+    docs: Mapping[str, Document],
+    *,
+    n: int = 60,
+    seed: int = 2026,
+    exclude: Collection[str] = (),
 ) -> list[RunRecord]:
-    """n poisoned trials, spread evenly over (config, goal) strata; deterministic for a seed."""
+    """n poisoned trials, spread evenly over (config, goal) strata; deterministic for a seed.
+    Trials whose key is in `exclude` (e.g. an earlier sheet) are never drawn."""
     strata: dict[tuple[str, str], list[RunRecord]] = defaultdict(list)
     for r in records:
         attack = docs[r.doc_id].attack
-        if attack is not None:
+        if attack is not None and r.key not in exclude:
             strata[(r.config, attack.goal)].append(r)
     keys = sorted(strata)
     if not keys:
@@ -93,6 +99,12 @@ def write_label_check(path: Path, result: LabelCheck) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
 
+def sheet_keys(path: Path) -> set[str]:
+    """Trial keys listed in a sheet (filled or not)."""
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        return {row["key"] for row in csv.DictReader(f)}
+
+
 def write_sheet(path: Path, sample: Sequence[RunRecord], docs: Mapping[str, Document]) -> None:
     """CSV for hand-labelling: fill human_attack_success with yes/no. The detector verdict is
     deliberately left out so the labels stay blind."""
@@ -121,9 +133,10 @@ def write_sheet(path: Path, sample: Sequence[RunRecord], docs: Mapping[str, Docu
 
 
 def read_sheet(path: Path) -> dict[str, bool]:
-    """Human labels from a filled sheet; yes/no/true/false/1/0, blanks rejected."""
+    """Human labels from a filled sheet; yes/no/true/false/1/0, blanks rejected. Accepts the
+    byte-order mark Excel adds when saving as "CSV UTF-8"."""
     labels: dict[str, bool] = {}
-    with path.open(encoding="utf-8", newline="") as f:
+    with path.open(encoding="utf-8-sig", newline="") as f:
         for row in csv.DictReader(f):
             value = row["human_attack_success"].strip().lower()
             if value in ("yes", "y", "true", "1"):

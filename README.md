@@ -153,8 +153,10 @@ human label check are the author's, recorded in `PROGRESS.md`.
 labelled by hand without seeing the detectors' verdicts. Agreement: **96.7% (58/60)**, above the
 95% target ([label_check.md](results/v1-main/label_check.md)). In both disagreements the
 assistant paid the real payee the real amount on a redirect attack, so the detector's "attack
-failed" was correct, and the labeller confirmed both were labelling slips; the labels are kept as
-entered rather than corrected after seeing the detectors' answers.
+failed" was correct. The labeller reports both were copy errors (intended "no"); since that was
+noticed only after scoring, the labels are kept as entered and the 96.7% stands. A second,
+independent check on 60 different trials (seed 2027, none shared with the first sheet) is in
+`results/v1-main/label_sheet_2.csv`.
 
 ## Responsible use
 
