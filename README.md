@@ -149,6 +149,12 @@ Spotlighting (Hines et al., [arXiv 2403.14720](https://arxiv.org/abs/2403.14720)
 Built with the help of an AI coding assistant (Claude Code); design decisions, approvals and the
 human label check are the author's, recorded in `PROGRESS.md`.
 
+**Scoring check:** 60 randomly sampled trials (20 per attacker goal, all five defenses) were
+labelled by hand without seeing the detectors' verdicts. Agreement: **96.7% (58/60)**, above the
+95% target ([label_check.md](results/v1-main/label_check.md)). In both disagreements the
+assistant paid the real payee the real amount on a redirect attack, so the detector's "attack
+failed" was correct; the labels are kept as entered.
+
 ## Responsible use
 
 Synthetic identifiers only: phone numbers start `+91 0`, UPI IDs end in `@fakepay` or
