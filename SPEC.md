@@ -51,7 +51,7 @@ Project size: **Large** (greenfield, multi-session), trimmed to a solo 3-day bud
 5. Is config (d) a fair comparison when its LLM never sees the profile or tools? Add a (d′) variant with the profile in context?
 6. Can the AgentDojo banking subset run with the chosen provider within a 3-hour timebox, or is it dropped?
 7. Telugu payloads: hand-written, or LLM-drafted and hand-checked?
-8. Release policy for the poisoned dataset: license, and public or on request?
+8. Release policy for the poisoned dataset: license, and public or on request? *Answered 2026-10-23: public; MIT for code, CC BY 4.0 for data and results (see License / release).*
 
 Answers go in PROGRESS.md ("Decisions made").
 
@@ -170,5 +170,5 @@ Against (d)/(e) the realistic path is **fact poisoning**: F5-style text that cha
 - **Payloads:** 8–12 templates per family, hand-written or drafted by a *different* model family from the agent model, all reviewed; all Telugu checked by me.
 - **Intended use:** evaluating defenses against indirect prompt injection; teaching; reproducing results. **Not** for attacking real services or certifying any product.
 - **Limitations (go into the README):** non-adaptive attacker; synthetic data and possible LLM-drafting artefacts; hidden text simulated in OCR text, not images; fully codifiable policy favours (d); (d) never sees the canary; single pinned primary model; hosted-latency noise.
-- **License / release:** TBD (open question 8). Dataset versioned by hash; any change creates `v2`.
+- **License / release:** public. Code under MIT (`LICENSE`); dataset, results and the `results-v1` release under CC BY 4.0 (`LICENSE-DATA`). Decided by the human 2026-10-23 (open question 8). Dataset versioned by hash; any change creates `v2`.
 - **References:** Spotlighting (Hines et al., arXiv 2403.14720); AgentDojo (arXiv 2406.13352); LlamaFirewall (arXiv 2505.03574); OpenAI Atlas prompt-injection post.
